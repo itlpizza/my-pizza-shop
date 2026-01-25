@@ -3,61 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OC 披萨店制作器</title>
+    <title>PIZZA SHOP | 角色工坊</title>
     <style>
-        body { font-family: sans-serif; background: #f7f1e3; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        :root { --red: #d63031; --yellow: #feca57; --paper: #fffcf2; }
+        body { font-family: 'PingFang SC', sans-serif; background: #f7f1e3; margin: 0; display: flex; justify-content: center; }
         
-        /* 1. 制作台样式（输入框） */
-        .editor-zone { 
-            background: white; padding: 20px; border-radius: 15px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; margin-bottom: 30px;
+        /* 页面切换逻辑 */
+        .page { display: none; width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; }
+        .active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- 第一页：大堂菜单样式 --- */
+        .main-menu { text-align: center; background: white; border-radius: 20px; padding: 40px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-top: 50px; }
+        .menu-item { 
+            background: var(--paper); border: 2px solid var(--red); padding: 20px; 
+            margin: 15px 0; border-radius: 10px; cursor: pointer; transition: 0.3s;
+            font-size: 20px; font-weight: bold; color: var(--red);
         }
-        .editor-zone h2 { color: #d63031; font-size: 18px; }
-        input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .menu-item:hover { transform: scale(1.05); background: var(--yellow); }
+
+        /* --- 第二页：制作器样式 --- */
+        .editor-container { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #555; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         
-        /* 2. 预览区样式（就是那个披萨盒卡片） */
-        .pizza-box {
-            background: #fffcf2; max-width: 400px; width: 100%;
-            border: 2px dashed #d63031; border-radius: 5px; padding: 20px;
-            box-shadow: 10px 10px 0px rgba(214, 48, 49, 0.1); box-sizing: border-box;
+        /* 实时预览小票样式 */
+        .receipt-preview { 
+            background: var(--paper); border: 2px dashed var(--red); padding: 20px; margin-top: 20px;
+            position: relative; font-family: 'Courier New', Courier, monospace;
         }
-        .oc-photo { width: 100%; height: 250px; object-fit: cover; border: 1px solid #eee; }
-        .stat-bar { background: #eee; height: 10px; border-radius: 5px; margin: 5px 0 15px 0; }
-        .stat-fill { background: #feca57; height: 100%; width: 50%; border-right: 3px solid #d63031; }
+        .stat-bar { background: #eee; height: 10px; border-radius: 5px; margin: 5px 0 10px 0; overflow: hidden; }
+        .stat-fill { background: var(--yellow); height: 100%; width: 50%; border-right: 2px solid var(--red); transition: 0.3s; }
+        .back-btn { background: #666; color: white; border: none; padding: 10px; border-radius: 5px; margin-bottom: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="editor-zone">
-        <h2>🛠️ 制作你的 OC 空间</h2>
-        <input type="text" id="inName" placeholder="输入 OC 名字" oninput="updateCard()">
-        <input type="text" id="inTags" placeholder="输入标签（如：#活泼 #芝士）" oninput="updateCard()">
-        <label>芝士浓度：</label>
-        <input type="range" id="inCheese" min="0" max="100" value="50" oninput="updateCard()">
+    <div id="page1" class="page active">
+        <div class="main-menu">
+            <h1 style="color: var(--red);">🍕 欢迎来到披萨店</h1>
+            <p>Menu</p>
+            <div class="menu-item" onclick="goPage(2)">✨ 制作你的专属披萨 (OC)</div>
+            <div class="menu-item" onclick="alert('广场装修中...')">🏘️ 菜品评论 (OC广场)</div>
+            <div class="menu-item" onclick="alert('暂无外卖...')">🛵 关于我们</div>
+        </div>
     </div>
 
-    <div class="pizza-box" id="capture">
-        <img src="pizza.jpg" class="oc-photo" id="cardImg">
-        <h2 id="cardName" style="border-bottom: 2px solid #d63031;">待定角色</h2>
-        <p id="cardTags" style="color: #d63031; font-weight: bold;">#新出炉</p>
-        
-        <label>🧀 芝士浓度</label>
-        <div class="stat-bar"><div class="stat-fill" id="barCheese" style="width: 50%;"></div></div>
-        
-        <p style="text-align: center; font-size: 12px; color: #aaa;">—— 披萨空间专属小票 ——</p>
+    <div id="page2" class="page">
+        <button class="back-btn" onclick="goPage(1)">← 返回大堂</button>
+        <div class="editor-container">
+            <h2 style="color: var(--red); text-align: center;">🎨 后厨加工中...</h2>
+            
+            <div class="form-group">
+                <label>产品名称 (角色名)</label>
+                <input type="text" id="name" placeholder="例如：培根、小火龙" oninput="update()">
+            </div>
+            <div class="form-group">
+                <label>饼底类型 (种族)</label>
+                <select id="type" onchange="update()">
+                    <option value="薄脆型(人类)">薄脆型 (人类)</option>
+                    <option value="厚底芝心(兽人)">厚底芝心 (兽人)</option>
+                    <option value="全麦健康(精灵)">全麦健康 (精灵)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>风味调料 (标签)</label>
+                <input type="text" id="tags" placeholder="#特辣 #超浓缩芝士" oninput="update()">
+            </div>
+
+            <div class="form-group">
+                <label>美味度 (魅力)</label>
+                <input type="range" id="stat1" oninput="update()">
+            </div>
+            <div class="form-group">
+                <label>拉丝长度 (社交)</label>
+                <input type="range" id="stat2" oninput="update()">
+            </div>
+
+            <div class="form-group">
+                <label>配料说明 (生平)</label>
+                <textarea id="bio" rows="3" oninput="update()"></textarea>
+            </div>
+        </div>
+
+        <div class="receipt-preview" id="receipt">
+            <h3 style="text-align: center; border-bottom: 2px solid var(--red); padding-bottom: 5px;">OC 赏味小票</h3>
+            <p><b>品名：</b><span id="v-name">未定名</span></p>
+            <p><b>型号：</b><span id="v-type">薄脆型</span></p>
+            <p><b>调味：</b><span id="v-tags">#新鲜出炉</span></p>
+            
+            <label>📊 口味分布</label>
+            <div class="stat-bar"><div id="v-bar1" class="stat-fill" style="width: 50%;"></div></div>
+            <div class="stat-bar"><div id="v-bar2" class="stat-fill" style="width: 50%;"></div></div>
+
+            <p style="background: #eee; padding: 10px; font-size: 13px;">
+                <b>配料：</b><span id="v-bio">等待后厨切配...</span>
+            </p>
+            <p style="text-align: center; font-size: 10px; color: #999;">*** 请在赏味期限前爱护此 OC ***</p>
+        </div>
     </div>
 
     <script>
-        function updateCard() {
-            // 获取输入框的值
-            const name = document.getElementById('inName').value;
-            const tags = document.getElementById('inTags').value;
-            const cheese = document.getElementById('inCheese').value;
+        // 翻页逻辑
+        function goPage(num) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page' + num).classList.add('active');
+        }
 
-            // 把值填到预览卡片里
-            document.getElementById('cardName').innerText = name || "待定角色";
-            document.getElementById('cardTags').innerText = tags || "#新出炉";
-            document.getElementById('barCheese').style.width = cheese + "%";
+        // 实时渲染逻辑
+        function update() {
+            document.getElementById('v-name').innerText = document.getElementById('name').value || "未定名";
+            document.getElementById('v-type').innerText = document.getElementById('type').value;
+            document.getElementById('v-tags').innerText = document.getElementById('tags').value || "#新鲜出炉";
+            document.getElementById('v-bio').innerText = document.getElementById('bio').value || "等待后厨切配...";
+            
+            document.getElementById('v-bar1').style.width = document.getElementById('stat1').value + "%";
+            document.getElementById('v-bar2').style.width = document.getElementById('stat2').value + "%";
         }
     </script>
 </body>
