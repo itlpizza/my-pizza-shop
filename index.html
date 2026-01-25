@@ -13,32 +13,32 @@
         .active { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* 第一页样式 */
+        /* 首页样式 */
         .main-menu { text-align: center; background: white; border-radius: 30px; padding: 50px 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); margin-top: 40px; border: 5px solid var(--red); }
         .logo { font-size: 60px; margin-bottom: 10px; }
         .menu-item { background: var(--paper); border: 2px solid var(--red); padding: 20px; margin: 18px 0; border-radius: 15px; cursor: pointer; transition: 0.2s; font-size: 18px; font-weight: bold; color: var(--red); box-shadow: 4px 4px 0px var(--red); }
         .menu-item:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--red); background: var(--yellow); }
 
-        /* 第二页清单样式 */
-        .editor-title { color: var(--red); text-align: center; margin-bottom: 20px; }
+        /* 编辑页样式 */
         .section-card { background: white; border-radius: 15px; border: 1px solid #ddd; margin-bottom: 20px; overflow: hidden; }
         .section-header { background: var(--red); color: white; padding: 12px 15px; font-weight: bold; }
-        
         .input-row { padding: 12px 15px; border-bottom: 1px solid #eee; display: flex; align-items: flex-start; gap: 12px; }
         .check-box { width: 22px; height: 22px; border: 2px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-top: 2px; color: white; font-size: 16px; flex-shrink: 0; transition: 0.3s; }
         .checked { background: var(--green); border-color: var(--green); }
         .checked::after { content: "✓"; font-weight: bold; }
-
         .input-body { flex-grow: 1; }
         .input-body label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #555; }
         input[type="text"], input[type="file"], textarea { width: 100%; border: 1px solid #eee; padding: 10px; border-radius: 8px; box-sizing: border-box; background: #fafafa; font-size: 14px; }
-        
-        /* 预览区 */
+
+        /* 预览区 - 支持多图切换 */
         .receipt-preview { background: var(--paper); border: 2px dashed var(--red); padding: 25px; margin-top: 20px; position: relative; }
-        .v-img-container { width: 100%; height: 280px; background: #eee; border-radius: 5px; overflow: hidden; margin-bottom: 15px; }
+        .v-img-container { width: 100%; height: 280px; background: #eee; border-radius: 5px; overflow: hidden; margin-bottom: 15px; position: relative; }
         #v-img { width: 100%; height: 100%; object-fit: cover; }
+        .img-nav { position: absolute; top: 50%; width: 100%; display: flex; justify-content: space-between; transform: translateY(-50%); pointer-events: none; }
+        .nav-arrow { background: rgba(214, 48, 49, 0.7); color: white; border: none; padding: 10px; cursor: pointer; pointer-events: auto; display: none; }
+
         .stat-bar { background: #e0e0e0; height: 10px; border-radius: 5px; margin: 4px 0 12px 0; overflow: hidden; }
-        .stat-fill { background: linear-gradient(90deg, var(--yellow), var(--red)); height: 100%; width: 50%; transition: 0.3s; }
+        .stat-fill { background: linear-gradient(90deg, var(--yellow), var(--red)); height: 100%; transition: 0.3s; }
 
         .back-btn { background: var(--dark); color: white; border: none; padding: 10px 20px; border-radius: 10px; margin-bottom: 15px; cursor: pointer; }
         .save-btn { background: var(--green); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-size: 18px; font-weight: bold; margin-top: 20px; cursor: pointer; }
@@ -59,17 +59,20 @@
 
     <div id="page2" class="page">
         <button class="back-btn" onclick="goPage(1)">← 返回大堂</button>
-        <h2 class="editor-title">🔪 后厨加工清单</h2>
+        <h2 style="color:var(--red); text-align:center;">🔪 后厨加工清单</h2>
 
         <div class="section-card">
             <div class="section-header">基础档案（身份信息）</div>
             <div class="input-row">
                 <div class="check-box" id="check-img"></div>
-                <div class="input-body"><label>上作 OC 立绘 (照片)</label><input type="file" id="imgInput" accept="image/*" onchange="previewImage(this)"></div>
+                <div class="input-body">
+                    <label>上传 OC 立绘 (照片) - 可多选</label>
+                    <input type="file" id="imgInput" accept="image/*" multiple onchange="previewImages(this)">
+                </div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-name"></div>
-                <div class="input-body"><label>角色名称 ➔ 产品名称</label><input type="text" id="name" placeholder="输入名称" oninput="update()"></div>
+                <div class="input-body"><label>产品名称</label><input type="text" id="name" placeholder="输入名称" oninput="update()"></div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-type"></div>
@@ -77,7 +80,7 @@
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-tags"></div>
-                <div class="input-body"><label>风味调料（性格标签）</label><input type="text" id="tags" placeholder="输入标签" oninput="update()"></div>
+                <div class="input-body"><label>风味调料（性格描述）</label><input type="text" id="tags" placeholder="输入描述" oninput="update()"></div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-date"></div>
@@ -87,22 +90,10 @@
 
         <div class="section-card">
             <div class="section-header">核心数值（属性条）</div>
-            <div class="input-row">
-                <div class="check-box checked"></div>
-                <div class="input-body"><label>美味度</label><input type="range" id="stat1" value="50" oninput="update()"></div>
-            </div>
-            <div class="input-row">
-                <div class="check-box checked"></div>
-                <div class="input-body"><label>拉丝长度</label><input type="range" id="stat2" value="50" oninput="update()"></div>
-            </div>
-            <div class="input-row">
-                <div class="check-box checked"></div>
-                <div class="input-body"><label>脆度</label><input type="range" id="stat3" value="50" oninput="update()"></div>
-            </div>
-            <div class="input-row">
-                <div class="check-box checked"></div>
-                <div class="input-body"><label>卡路里</label><input type="range" id="stat4" value="50" oninput="update()"></div>
-            </div>
+            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>美味度</label><input type="range" id="stat1" value="50" oninput="update()"></div></div>
+            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>拉丝长度</label><input type="range" id="stat2" value="50" oninput="update()"></div></div>
+            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>脆度</label><input type="range" id="stat3" value="50" oninput="update()"></div></div>
+            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>卡路里</label><input type="range" id="stat4" value="50" oninput="update()"></div></div>
         </div>
 
         <div class="section-card">
@@ -122,8 +113,14 @@
         </div>
 
         <div id="receipt" class="receipt-preview">
-            <h3 style="text-align:center; border-bottom:2px solid var(--red); margin:0 0 15px 0; padding-bottom:5px;">ORDER #PIZZA-OC</h3>
-            <div class="v-img-container"><img src="" id="v-img" alt="等待上传"></div>
+            <h3 style="text-align:center; border-bottom:2px solid var(--red); margin:0 0 15px 0; padding-bottom:5px;">PIZZA-OC</h3>
+            <div class="v-img-container">
+                <img src="" id="v-img" alt="等待上传">
+                <div class="img-nav" id="imgNav">
+                    <button class="nav-arrow" onclick="changeImg(-1)" style="display:block;">◀</button>
+                    <button class="nav-arrow" onclick="changeImg(1)" style="display:block;">▶</button>
+                </div>
+            </div>
             <p><b>品名:</b> <span id="v-name">---</span></p>
             <p><b>饼底:</b> <span id="v-type">---</span> | <b>生日:</b> <span id="v-date">---</span></p>
             <p><b>调味:</b> <span id="v-tags">---</span></p>
@@ -139,7 +136,7 @@
                 <div class="stat-bar"><div id="v-bar4" class="stat-fill" style="width:50%"></div></div>
             </div>
 
-            <div style="background:rgba(0,0,0,0.03); padding:10px; font-size:12px; border-radius:5px; margin-top:10px; line-height:1.5;">
+            <div style="background:rgba(0,0,0,0.03); padding:10px; font-size:12px; border-radius:5px; margin-top:10px;">
                 <b>[配料生平]</b> <span id="v-bio">---</span><br>
                 <b>[赏味期限]</b> <span id="v-wish">---</span><br>
                 <b>[避雷提示]</b> <span id="v-allergy">---</span>
@@ -151,21 +148,34 @@
     </div>
 
     <script>
+        let imgList = [];
+        let currentImgIndex = 0;
+
         function goPage(num) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('page' + num).classList.add('active');
             window.scrollTo(0,0);
         }
 
-        function previewImage(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) { 
-                    document.getElementById('v-img').src = e.target.result;
-                    document.getElementById('check-img').classList.add('checked');
-                }
-                reader.readAsDataURL(input.files[0]);
+        function previewImages(input) {
+            if (input.files) {
+                imgList = [];
+                Array.from(input.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        imgList.push(e.target.result);
+                        if(imgList.length === 1) document.getElementById('v-img').src = imgList[0];
+                    };
+                    reader.readAsDataURL(file);
+                });
+                document.getElementById('check-img').classList.add('checked');
             }
+        }
+
+        function changeImg(step) {
+            if(imgList.length === 0) return;
+            currentImgIndex = (currentImgIndex + step + imgList.length) % imgList.length;
+            document.getElementById('v-img').src = imgList[currentImgIndex];
         }
 
         function update() {
