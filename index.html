@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PIZZA SHOP | OC角色工坊 (存档增强版)</title>
+    <title>PIZZA SHOP | OC角色工坊 (交互优化版)</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         :root { --red: #d63031; --yellow: #feca57; --paper: #fffcf2; --green: #27ae60; --dark: #2d3436; }
@@ -59,9 +59,17 @@
         .pizza-card .thumb-img { width: 100%; height: 150px; object-fit: cover; background: #f0f0f0; }
         .pizza-info { padding: 10px; text-align: center; font-size: 14px; font-weight: bold; color: var(--dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .delete-btn { position: absolute; top: 5px; right: 5px; background: rgba(214, 48, 49, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-size: 12px; z-index: 5; }
+
+        /* 成功提示框 */
+        #toast { visibility: hidden; min-width: 250px; background-color: var(--dark); color: #fff; text-align: center; border-radius: 10px; padding: 16px; position: fixed; z-index: 100; left: 50%; bottom: 30px; transform: translateX(-50%); font-weight: bold; border: 2px solid var(--yellow); }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
 </head>
 <body>
+
+    <div id="toast">🍕 制作成功！可在“我的披萨”中查看</div>
 
     <div id="page1" class="page active">
         <div class="main-menu">
@@ -76,7 +84,7 @@
     </div>
 
     <div id="page2" class="page">
-        <button class="back-btn" onclick="goPage(1)">← 返回大堂</button>
+        <button class="back-btn" onclick="handleBack()">← 返回</button>
         
         <div class="color-picker-wrap">
             <label style="font-size: 13px; font-weight: bold;">小票纸张颜色：</label>
@@ -105,11 +113,11 @@
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-type"></div>
-                <div class="input-body"><label>饼底类型（种族/物种）</label><input type="text" id="type" placeholder="如：兽人、人类..." oninput="update()"></div>
+                <div class="input-body"><label>饼底类型（种族）</label><input type="text" id="type" placeholder="如：兽人、人类..." oninput="update()"></div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-tags"></div>
-                <div class="input-body"><label>风味调料（性格描述）</label><input type="text" id="tags" placeholder="输入性格关键词" oninput="update()"></div>
+                <div class="input-body"><label>风味调料（性格）</label><input type="text" id="tags" placeholder="输入性格关键词" oninput="update()"></div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-date"></div>
@@ -129,15 +137,15 @@
             <div class="section-header">深度设定（小票详情）</div>
             <div class="input-row">
                 <div class="check-box" id="check-bio"></div>
-                <div class="input-body"><label>配料说明（角色生平）</label><textarea id="bio" rows="3" placeholder="角色的背景故事..." oninput="update()"></textarea></div>
+                <div class="input-body"><label>配料说明（生平）</label><textarea id="bio" rows="3" placeholder="角色的背景故事..." oninput="update()"></textarea></div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-wish"></div>
-                <div class="input-body"><label>赏味期限（座右铭或愿望）</label><input type="text" id="wish" placeholder="愿望/格言" oninput="update()"></div>
+                <div class="input-body"><label>赏味期限（愿望）</label><input type="text" id="wish" placeholder="愿望/格言" oninput="update()"></div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-allergy"></div>
-                <div class="input-body"><label>过敏原提示（角色的怕点）</label><input type="text" id="allergy" placeholder="角色的弱点" oninput="update()"></div>
+                <div class="input-body"><label>过敏原（怕点）</label><input type="text" id="allergy" placeholder="角色的弱点" oninput="update()"></div>
             </div>
         </div>
 
@@ -154,7 +162,6 @@
             <p><b>品名:</b> <span id="v-name">---</span></p>
             <p><b>饼底:</b> <span id="v-type">---</span> | <b>生日:</b> <span id="v-date">---</span></p>
             <p><b>调味:</b> <span id="v-tags">---</span></p>
-            
             <div style="margin-top:10px;">
                 <div style="display:flex; justify-content:space-between; font-size:11px;"><span>🧀 美味度</span><span id="v-val1">50%</span></div>
                 <div class="stat-bar"><div id="v-bar1" class="stat-fill" style="width:50%"></div></div>
@@ -165,7 +172,6 @@
                 <div style="display:flex; justify-content:space-between; font-size:11px;"><span>🍔 卡路里</span><span id="v-val4">50%</span></div>
                 <div class="stat-bar"><div id="v-bar4" class="stat-fill" style="width:50%"></div></div>
             </div>
-
             <div style="background:rgba(0,0,0,0.05); padding:10px; font-size:12px; border-radius:5px; margin-top:10px; line-height:1.6;">
                 <b>[配料生平]</b> <span id="v-bio">---</span><br>
                 <b>[赏味期限]</b> <span id="v-wish">---</span><br>
@@ -187,7 +193,7 @@
     <script>
         let imgList = [];
         let currentImgIndex = 0;
-        let editingId = null; // 用于记录当前是否在修改旧存档
+        let editingId = null; 
         const pizzaNames = ["碳烤熔岩黑松露", "至尊芝心小恶魔", "法式香草奶油猫", "榴莲爆炸狂想曲", "薄脆萨拉米之吻", "深海墨鱼芝士堡", "薄荷青提森林果", "迷迭香烤小羊排"];
 
         function goPage(num) {
@@ -196,11 +202,18 @@
             window.scrollTo(0,0);
         }
 
+        // 返回逻辑优化
+        function handleBack() {
+            if (editingId) {
+                showCollection(); // 如果是在修改中，点击返回跳回列表
+            } else {
+                goPage(1); // 否则回首页
+            }
+        }
+
         function createNewPizza() {
             editingId = null;
-            // 重置表单
-            const inputs = document.querySelectorAll('#page2 input[type="text"], #page2 textarea');
-            inputs.forEach(i => i.value = "");
+            document.querySelectorAll('#page2 input[type="text"], #page2 textarea').forEach(i => i.value = "");
             document.querySelectorAll('input[type="range"]').forEach(r => r.value = 50);
             clearImages();
             update();
@@ -208,10 +221,8 @@
         }
 
         function changePaperColor(val) { document.getElementById('receipt').style.backgroundColor = val; }
-
         function randomName() {
-            const index = Math.floor(Math.random() * pizzaNames.length);
-            document.getElementById('name').value = pizzaNames[index];
+            document.getElementById('name').value = pizzaNames[Math.floor(Math.random() * pizzaNames.length)];
             update();
         }
 
@@ -281,11 +292,10 @@
             }
         }
 
-        // 核心功能：保存数据存档
         function fullArchiveSave() {
             const ocName = document.getElementById('name').value.trim() || "未命名披萨";
+            const isNew = (editingId === null); // 判断是新做还是修改
             
-            // 1. 采集表单数据
             const pizzaData = {
                 id: editingId || Date.now(),
                 name: ocName,
@@ -300,50 +310,54 @@
                 stat3: document.getElementById('stat3').value,
                 stat4: document.getElementById('stat4').value,
                 paperColor: document.getElementById('paperColor').value,
-                images: imgList // 保存所有图片Base64
+                images: imgList
             };
 
-            // 2. 截图（用于存档预览和下载）
             const nav = document.getElementById('imgNav');
             nav.style.display = "none"; 
             
             html2canvas(document.getElementById('receipt')).then(canvas => {
                 const imgShot = canvas.toDataURL('image/png');
-                pizzaData.previewShot = imgShot; // 存入预览图
+                pizzaData.previewShot = imgShot;
 
-                // 3. 写入 LocalStorage
                 let collection = JSON.parse(localStorage.getItem('pizzaArchives') || '[]');
-                
-                if (editingId) {
+                if (!isNew) {
                     const idx = collection.findIndex(p => p.id === editingId);
                     if (idx !== -1) collection[idx] = pizzaData;
                 } else {
                     collection.push(pizzaData);
                 }
-                
                 localStorage.setItem('pizzaArchives', JSON.stringify(collection));
 
-                // 4. 同时触发图片下载（方便社交分享）
+                // 自动下载图片
                 const link = document.createElement('a');
                 link.download = `PIZZA_${ocName}.png`;
                 link.href = imgShot;
                 link.click();
 
-                alert('✅ 存档成功！已同步导出小票图片。');
-                nav.style.display = imgList.length > 1 ? "flex" : "none";
-                showCollection();
+                // 交互逻辑核心：
+                if (isNew) {
+                    // 如果是新做的，弹窗提示，留在原地
+                    showToast();
+                    nav.style.display = imgList.length > 1 ? "flex" : "none";
+                } else {
+                    // 如果是修改的，保存后跳回列表
+                    showCollection();
+                }
             });
         }
 
-        // 加载存档到编辑页面
+        function showToast() {
+            const x = document.getElementById("toast");
+            x.className = "show";
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }
+
         function loadArchive(id) {
             const collection = JSON.parse(localStorage.getItem('pizzaArchives') || '[]');
             const data = collection.find(p => p.id === id);
             if (!data) return;
-
             editingId = data.id;
-            
-            // 还原文字
             document.getElementById('name').value = data.name;
             document.getElementById('type').value = data.type;
             document.getElementById('tags').value = data.tags;
@@ -351,18 +365,12 @@
             document.getElementById('bio').value = data.bio;
             document.getElementById('wish').value = data.wish;
             document.getElementById('allergy').value = data.allergy;
-            
-            // 还原滑块
             document.getElementById('stat1').value = data.stat1;
             document.getElementById('stat2').value = data.stat2;
             document.getElementById('stat3').value = data.stat3;
             document.getElementById('stat4').value = data.stat4;
-            
-            // 还原颜色
             document.getElementById('paperColor').value = data.paperColor || "#fffcf2";
             changePaperColor(data.paperColor || "#fffcf2");
-
-            // 还原图片
             imgList = data.images || [];
             currentImgIndex = 0;
             document.getElementById('local-preview-container').innerHTML = "";
@@ -371,7 +379,6 @@
                 thumb.src = src;
                 document.getElementById('local-preview-container').appendChild(thumb);
             });
-
             update();
             refreshImgDisplay();
             goPage(2);
@@ -382,20 +389,16 @@
             list.innerHTML = '';
             let collection = JSON.parse(localStorage.getItem('pizzaArchives') || '[]');
             const filtered = collection.filter(p => p.name.toLowerCase().includes(term.toLowerCase()));
-            
             if(filtered.length === 0) {
                 list.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#999; padding:20px;">冷藏柜空空的...</p>';
                 return;
             }
-
             filtered.forEach((item) => {
                 const card = document.createElement('div');
                 card.className = 'pizza-card';
-                card.innerHTML = `
-                    <button class="delete-btn" onclick="deletePizza(${item.id}, event)">×</button>
-                    <img class="thumb-img" src="${item.previewShot || ''}" alt="预览">
-                    <div class="pizza-info">${item.name}</div>
-                `;
+                card.innerHTML = `<button class="delete-btn" onclick="deletePizza(${item.id}, event)">×</button>
+                    <img class="thumb-img" src="${item.previewShot || ''}">
+                    <div class="pizza-info">${item.name}</div>`;
                 card.onclick = () => loadArchive(item.id);
                 list.appendChild(card);
             });
@@ -403,10 +406,9 @@
 
         function showCollection() { renderList(); goPage(3); }
         function filterPizzas() { renderList(document.getElementById('searchInput').value); }
-        
         function deletePizza(id, e) {
             e.stopPropagation();
-            if(confirm('确定要从冷藏柜永久移除这个OC吗？')) {
+            if(confirm('确定要移除吗？')) {
                 let col = JSON.parse(localStorage.getItem('pizzaArchives'));
                 col = col.filter(p => p.id !== id);
                 localStorage.setItem('pizzaArchives', JSON.stringify(col));
