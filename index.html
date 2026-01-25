@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PIZZA SHOP | 角色工坊</title>
+    <title>PIZZA SHOP | OC角色工坊</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         :root { --red: #d63031; --yellow: #feca57; --paper: #fffcf2; --green: #27ae60; --dark: #2d3436; }
@@ -13,47 +13,31 @@
         .active { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- 第一页：保持你原本喜欢的样式 --- */
+        /* 第一页样式 */
         .main-menu { text-align: center; background: white; border-radius: 30px; padding: 50px 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); margin-top: 40px; border: 5px solid var(--red); }
         .logo { font-size: 60px; margin-bottom: 10px; }
-        .menu-item { 
-            background: var(--paper); border: 2px solid var(--red); padding: 20px; 
-            margin: 18px 0; border-radius: 15px; cursor: pointer; transition: 0.2s;
-            font-size: 18px; font-weight: bold; color: var(--red); box-shadow: 4px 4px 0px var(--red);
-        }
+        .menu-item { background: var(--paper); border: 2px solid var(--red); padding: 20px; margin: 18px 0; border-radius: 15px; cursor: pointer; transition: 0.2s; font-size: 18px; font-weight: bold; color: var(--red); box-shadow: 4px 4px 0px var(--red); }
         .menu-item:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--red); background: var(--yellow); }
 
-        /* --- 第二页：清单式制作页 --- */
-        .editor-title { color: var(--red); text-align: center; margin: 10px 0 20px 0; }
-        .section-card { background: white; border-radius: 15px; border: 1px solid #ddd; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .section-header { background: var(--red); color: white; padding: 10px 15px; font-weight: bold; border-radius: 14px 14px 0 0; }
+        /* 第二页清单样式 */
+        .editor-title { color: var(--red); text-align: center; margin-bottom: 20px; }
+        .section-card { background: white; border-radius: 15px; border: 1px solid #ddd; margin-bottom: 20px; overflow: hidden; }
+        .section-header { background: var(--red); color: white; padding: 12px 15px; font-weight: bold; }
         
-        .input-row { padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
-        .input-row:last-child { border-bottom: none; }
-        
-        /* 方框打钩逻辑 */
-        .check-box { 
-            width: 22px; height: 22px; border: 2px solid #ddd; border-radius: 4px; 
-            display: flex; align-items: center; justify-content: center; margin-top: 2px;
-            color: white; font-size: 16px; flex-shrink: 0; transition: all 0.3s;
-        }
+        .input-row { padding: 12px 15px; border-bottom: 1px solid #eee; display: flex; align-items: flex-start; gap: 12px; }
+        .check-box { width: 22px; height: 22px; border: 2px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-top: 2px; color: white; font-size: 16px; flex-shrink: 0; transition: 0.3s; }
         .checked { background: var(--green); border-color: var(--green); }
         .checked::after { content: "✓"; font-weight: bold; }
 
         .input-body { flex-grow: 1; }
-        .input-body label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #555; }
-        input[type="text"], input[type="file"], select, textarea { width: 100%; border: 1px solid #eee; padding: 10px; border-radius: 8px; box-sizing: border-box; background: #fafafa; }
-        input:focus { background: white; border-color: var(--red); outline: none; }
-
-        /* 滑动条样式 */
-        .range-wrap { display: flex; align-items: center; gap: 10px; }
-        input[type="range"] { flex: 1; accent-color: var(--red); }
-
-        /* 小票预览区 */
-        .receipt-preview { background: var(--paper); border: 2px dashed var(--red); padding: 20px; margin-top: 20px; color: #333; }
-        .v-img-container { width: 100%; height: 250px; background: #eee; border-radius: 5px; overflow: hidden; margin-bottom: 15px; }
+        .input-body label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #555; }
+        input[type="text"], input[type="file"], textarea { width: 100%; border: 1px solid #eee; padding: 10px; border-radius: 8px; box-sizing: border-box; background: #fafafa; font-size: 14px; }
+        
+        /* 预览区 */
+        .receipt-preview { background: var(--paper); border: 2px dashed var(--red); padding: 25px; margin-top: 20px; position: relative; }
+        .v-img-container { width: 100%; height: 280px; background: #eee; border-radius: 5px; overflow: hidden; margin-bottom: 15px; }
         #v-img { width: 100%; height: 100%; object-fit: cover; }
-        .stat-bar { background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden; margin: 4px 0 10px 0; border: 1px solid #ccc; }
+        .stat-bar { background: #e0e0e0; height: 10px; border-radius: 5px; margin: 4px 0 12px 0; overflow: hidden; }
         .stat-fill { background: linear-gradient(90deg, var(--yellow), var(--red)); height: 100%; width: 50%; transition: 0.3s; }
 
         .back-btn { background: var(--dark); color: white; border: none; padding: 10px 20px; border-radius: 10px; margin-bottom: 15px; cursor: pointer; }
@@ -67,7 +51,6 @@
             <div class="logo">🍕</div>
             <h1 style="color: var(--red); margin: 0;">PIZZA WORKSHOP</h1>
             <p style="letter-spacing: 4px; color: #666; font-size: 12px;">角色赏味工坊</p>
-            
             <div class="menu-item" onclick="goPage(2)">✨ 制作专属披萨 (OC)</div>
             <div class="menu-item" onclick="alert('广场正在装修中...')">🏘️ 菜品评论 (OC广场)</div>
             <div class="menu-item" onclick="alert('欢迎光临！')">🛵 关于我们</div>
@@ -79,89 +62,89 @@
         <h2 class="editor-title">🔪 后厨加工清单</h2>
 
         <div class="section-card">
-            <div class="section-header">某础开帷 (基础档案)</div>
-            
+            <div class="section-header">基础档案（身份信息）</div>
             <div class="input-row">
                 <div class="check-box" id="check-img"></div>
-                <div class="input-body">
-                    <label>上作 OC 立绘 (照片)</label>
-                    <input type="file" id="imgInput" accept="image/*" onchange="previewImage(this)">
-                </div>
+                <div class="input-body"><label>上作 OC 立绘 (照片)</label><input type="file" id="imgInput" accept="image/*" onchange="previewImage(this)"></div>
             </div>
-
             <div class="input-row">
                 <div class="check-box" id="check-name"></div>
-                <div class="input-body">
-                    <label>产品名款 (角色名)</label>
-                    <input type="text" id="name" placeholder="请输入名号" oninput="update()">
-                </div>
+                <div class="input-body"><label>角色名称 ➔ 产品名称</label><input type="text" id="name" placeholder="输入名称" oninput="update()"></div>
             </div>
-
             <div class="input-row">
                 <div class="check-box" id="check-type"></div>
-                <div class="input-body">
-                    <label>饼底类型 (种族/物种)</label>
-                    <input type="text" id="type" placeholder="如：厚底芝心(兽人)" oninput="update()">
-                </div>
+                <div class="input-body"><label>饼底类型（种族/物种）</label><input type="text" id="type" placeholder="输入种族" oninput="update()"></div>
             </div>
-
             <div class="input-row">
                 <div class="check-box" id="check-tags"></div>
-                <div class="input-body">
-                    <label>风味调料 (性格标签)</label>
-                    <input type="text" id="tags" placeholder="#特辣 #浓郁芝士" oninput="update()">
-                </div>
+                <div class="input-body"><label>风味调料（性格标签）</label><input type="text" id="tags" placeholder="输入标签" oninput="update()"></div>
+            </div>
+            <div class="input-row">
+                <div class="check-box" id="check-date"></div>
+                <div class="input-body"><label>出炉日期（生日）</label><input type="text" id="date" placeholder="输入生日" oninput="update()"></div>
             </div>
         </div>
 
         <div class="section-card">
-            <div class="section-header">核心数量 (属性数值)</div>
+            <div class="section-header">核心数值（属性条）</div>
             <div class="input-row">
                 <div class="check-box checked"></div>
-                <div class="input-body">
-                    <label>美味度 (颜值/魅力)</label>
-                    <div class="range-wrap"><input type="range" id="stat1" value="50" oninput="update()"></div>
-                </div>
+                <div class="input-body"><label>美味度</label><input type="range" id="stat1" value="50" oninput="update()"></div>
             </div>
             <div class="input-row">
                 <div class="check-box checked"></div>
-                <div class="input-body">
-                    <label>拉丝长度 (社交/粘人)</label>
-                    <div class="range-wrap"><input type="range" id="stat2" value="50" oninput="update()"></div>
-                </div>
+                <div class="input-body"><label>拉丝长度</label><input type="range" id="stat2" value="50" oninput="update()"></div>
+            </div>
+            <div class="input-row">
+                <div class="check-box checked"></div>
+                <div class="input-body"><label>脆度</label><input type="range" id="stat3" value="50" oninput="update()"></div>
+            </div>
+            <div class="input-row">
+                <div class="check-box checked"></div>
+                <div class="input-body"><label>卡路里</label><input type="range" id="stat4" value="50" oninput="update()"></div>
             </div>
         </div>
 
         <div class="section-card">
-            <div class="section-header">该心说定 (深度档案)</div>
+            <div class="section-header">深度设定（小票详情）</div>
             <div class="input-row">
                 <div class="check-box" id="check-bio"></div>
-                <div class="input-body">
-                    <label>配料说明 (角色生平简介)</label>
-                    <textarea id="bio" rows="3" placeholder="写下你的配料故事..." oninput="update()"></textarea>
-                </div>
+                <div class="input-body"><label>配料说明（角色生平）</label><textarea id="bio" rows="3" placeholder="写下故事" oninput="update()"></textarea></div>
+            </div>
+            <div class="input-row">
+                <div class="check-box" id="check-wish"></div>
+                <div class="input-body"><label>赏味期限（座右铭或愿望）</label><input type="text" id="wish" placeholder="输入座右铭" oninput="update()"></div>
+            </div>
+            <div class="input-row">
+                <div class="check-box" id="check-allergy"></div>
+                <div class="input-body"><label>过敏原提示（角色的怕点）</label><input type="text" id="allergy" placeholder="害怕什么？" oninput="update()"></div>
             </div>
         </div>
 
         <div id="receipt" class="receipt-preview">
-            <h3 style="text-align:center; border-bottom:2px solid var(--red); margin:0 0 15px 0; padding-bottom:5px;">ORDER #OC-RECIPE</h3>
+            <h3 style="text-align:center; border-bottom:2px solid var(--red); margin:0 0 15px 0; padding-bottom:5px;">ORDER #PIZZA-OC</h3>
             <div class="v-img-container"><img src="" id="v-img" alt="等待上传"></div>
-            <p><b>品名：</b><span id="v-name">---</span></p>
-            <p><b>型号：</b><span id="v-type">---</span></p>
-            <p><b>调味：</b><span id="v-tags">#新鲜出炉</span></p>
+            <p><b>品名:</b> <span id="v-name">---</span></p>
+            <p><b>饼底:</b> <span id="v-type">---</span> | <b>生日:</b> <span id="v-date">---</span></p>
+            <p><b>调味:</b> <span id="v-tags">---</span></p>
             
             <div style="margin-top:10px;">
-                <div style="display:flex; justify-content:space-between; font-size:12px;"><span>🧀 美味度</span><span id="v-val1">50%</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>🧀 美味度</span><span id="v-val1">50%</span></div>
                 <div class="stat-bar"><div id="v-bar1" class="stat-fill" style="width:50%"></div></div>
-                <div style="display:flex; justify-content:space-between; font-size:12px;"><span>🔥 拉丝长度</span><span id="v-val2">50%</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>🔥 拉丝长</span><span id="v-val2">50%</span></div>
                 <div class="stat-bar"><div id="v-bar2" class="stat-fill" style="width:50%"></div></div>
+                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>🥨 脆度</span><span id="v-val3">50%</span></div>
+                <div class="stat-bar"><div id="v-bar3" class="stat-fill" style="width:50%"></div></div>
+                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>🍔 卡路里</span><span id="v-val4">50%</span></div>
+                <div class="stat-bar"><div id="v-bar4" class="stat-fill" style="width:50%"></div></div>
             </div>
 
-            <div style="background:rgba(0,0,0,0.03); padding:10px; font-size:13px; border-radius:5px; margin-top:10px;">
-                <b style="color:var(--red);">[配料详情]</b><br>
-                <span id="v-bio">等待后厨切配...</span>
+            <div style="background:rgba(0,0,0,0.03); padding:10px; font-size:12px; border-radius:5px; margin-top:10px; line-height:1.5;">
+                <b>[配料生平]</b> <span id="v-bio">---</span><br>
+                <b>[赏味期限]</b> <span id="v-wish">---</span><br>
+                <b>[避雷提示]</b> <span id="v-allergy">---</span>
             </div>
-            <p style="text-align:center; font-size:10px; color:#999; margin-top:15px;">*** 请在赏味期限前爱护此 OC ***</p>
+            <p style="text-align:center; font-size:10px; color:#999; margin-top:15px;">*** 新鲜出炉，请尽快爱护 ***</p>
         </div>
         
         <button class="save-btn" onclick="saveAsImage()">📦 打包出炉 (保存小票图片)</button>
@@ -190,24 +173,25 @@
                 { id: 'name', vId: 'v-name', checkId: 'check-name' },
                 { id: 'type', vId: 'v-type', checkId: 'check-type' },
                 { id: 'tags', vId: 'v-tags', checkId: 'check-tags' },
-                { id: 'bio', vId: 'v-bio', checkId: 'check-bio' }
+                { id: 'date', vId: 'v-date', checkId: 'check-date' },
+                { id: 'bio', vId: 'v-bio', checkId: 'check-bio' },
+                { id: 'wish', vId: 'v-wish', checkId: 'check-wish' },
+                { id: 'allergy', vId: 'v-allergy', checkId: 'check-allergy' }
             ];
 
             fields.forEach(field => {
                 const val = document.getElementById(field.id).value;
                 document.getElementById(field.vId).innerText = val || "---";
-                // 自动打钩逻辑
                 const check = document.getElementById(field.checkId);
                 if (val.trim().length > 0) check.classList.add('checked');
                 else check.classList.remove('checked');
             });
 
-            const s1 = document.getElementById('stat1').value;
-            const s2 = document.getElementById('stat2').value;
-            document.getElementById('v-bar1').style.width = s1 + "%";
-            document.getElementById('v-val1').innerText = s1 + "%";
-            document.getElementById('v-bar2').style.width = s2 + "%";
-            document.getElementById('v-val2').innerText = s2 + "%";
+            for(let i=1; i<=4; i++) {
+                const s = document.getElementById('stat' + i).value;
+                document.getElementById('v-bar' + i).style.width = s + "%";
+                document.getElementById('v-val' + i).innerText = s + "%";
+            }
         }
 
         function saveAsImage() {
