@@ -30,20 +30,16 @@
         .input-body label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #555; }
         input[type="text"], input[type="file"], textarea { width: 100%; border: 1px solid #eee; padding: 10px; border-radius: 8px; box-sizing: border-box; background: #fafafa; font-size: 14px; }
 
-        /* 预览区 - 多图切换增强 */
+        /* 即时预览缩略图 */
+        #local-preview-container img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; animation: popIn 0.3s; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* 预览区（小票） */
         .receipt-preview { background: var(--paper); border: 2px dashed var(--red); padding: 25px; margin-top: 20px; position: relative; }
         .v-img-container { width: 100%; height: 280px; background: #eee; border-radius: 5px; overflow: hidden; margin-bottom: 15px; position: relative; border: 1px solid #ddd; }
-        #v-img { width: 100%; height: 100%; object-fit: cover; transition: 0.2s; }
-        
-        /* 左右箭头 */
+        #v-img { width: 100%; height: 100%; object-fit: cover; }
         .img-nav { position: absolute; top: 0; bottom: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
-        .nav-arrow { 
-            background: rgba(0, 0, 0, 0.3); color: white; border: none; padding: 15px 10px; 
-            cursor: pointer; pointer-events: auto; font-size: 20px; transition: 0.3s;
-        }
-        .nav-arrow:hover { background: var(--red); }
-        
-        /* 图片数量角标 */
+        .nav-arrow { background: rgba(0, 0, 0, 0.3); color: white; border: none; padding: 15px 10px; cursor: pointer; pointer-events: auto; font-size: 20px; }
         .img-counter { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; }
 
         .stat-bar { background: #e0e0e0; height: 10px; border-radius: 5px; margin: 4px 0 12px 0; overflow: hidden; }
@@ -51,9 +47,7 @@
 
         .back-btn { background: var(--dark); color: white; border: none; padding: 10px 20px; border-radius: 10px; margin-bottom: 15px; cursor: pointer; }
         .save-btn { background: var(--green); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-size: 18px; font-weight: bold; margin-top: 20px; cursor: pointer; }
-        
-        /* 清空按钮 */
-        .clear-btn { font-size: 10px; color: #999; cursor: pointer; text-decoration: underline; margin-left: 10px; }
+        .clear-btn { font-size: 10px; color: var(--red); cursor: pointer; text-decoration: underline; margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -71,32 +65,33 @@
 
     <div id="page2" class="page">
         <button class="back-btn" onclick="goPage(1)">← 返回大堂</button>
-        <h2 style="color:var(--red); text-align:center;">🔪 后厨加工清单</h2>
+        <h2 style="color:var(--red); text-align:center; margin-top:0;">🔪 后厨加工清单</h2>
 
         <div class="section-card">
             <div class="section-header">基础档案（身份信息）</div>
             <div class="input-row">
                 <div class="check-box" id="check-img"></div>
                 <div class="input-body">
-                    <label>上传 OC 立绘 (照片) <span class="clear-btn" onclick="clearImages()">[清空已传]</span></label>
+                    <label>上传 OC 立绘 (照片) <span class="clear-btn" onclick="clearImages()">[清空立绘]</span></label>
                     <input type="file" id="imgInput" accept="image/*" multiple onchange="appendImages(this)">
+                    <div id="local-preview-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;"></div>
                 </div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-name"></div>
-                <div class="input-body"><label>产品名称</label><input type="text" id="name" placeholder="输入名称" oninput="update()"></div>
+                <div class="input-body"><label>产品名称</label><input type="text" id="name" placeholder="请输入角色名称" oninput="update()"></div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-type"></div>
-                <div class="input-body"><label>饼底类型（种族/物种）</label><input type="text" id="type" placeholder="输入种族" oninput="update()"></div>
+                <div class="input-body"><label>饼底类型（种族/物种）</label><input type="text" id="type" placeholder="如：兽人、人类..." oninput="update()"></div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-tags"></div>
-                <div class="input-body"><label>风味调料（性格描述）</label><input type="text" id="tags" placeholder="输入描述" oninput="update()"></div>
+                <div class="input-body"><label>风味调料（性格描述）</label><input type="text" id="tags" placeholder="输入性格关键词" oninput="update()"></div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-date"></div>
-                <div class="input-body"><label>出炉日期（生日）</label><input type="text" id="date" placeholder="输入生日" oninput="update()"></div>
+                <div class="input-body"><label>出炉日期（生日）</label><input type="text" id="date" placeholder="如：1月1日" oninput="update()"></div>
             </div>
         </div>
 
@@ -112,22 +107,22 @@
             <div class="section-header">深度设定（小票详情）</div>
             <div class="input-row">
                 <div class="check-box" id="check-bio"></div>
-                <div class="input-body"><label>配料说明（角色生平）</label><textarea id="bio" rows="3" placeholder="写下故事" oninput="update()"></textarea></div>
+                <div class="input-body"><label>配料说明（角色生平）</label><textarea id="bio" rows="3" placeholder="写下角色的故事背景..." oninput="update()"></textarea></div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-wish"></div>
-                <div class="input-body"><label>赏味期限（座右铭或愿望）</label><input type="text" id="wish" placeholder="输入座右铭" oninput="update()"></div>
+                <div class="input-body"><label>赏味期限（座右铭或愿望）</label><input type="text" id="wish" placeholder="座右铭/愿望" oninput="update()"></div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-allergy"></div>
-                <div class="input-body"><label>过敏原提示（角色的怕点）</label><input type="text" id="allergy" placeholder="害怕什么？" oninput="update()"></div>
+                <div class="input-body"><label>过敏原提示（角色的怕点）</label><input type="text" id="allergy" placeholder="害怕的事物/弱点" oninput="update()"></div>
             </div>
         </div>
 
         <div id="receipt" class="receipt-preview">
             <h3 style="text-align:center; border-bottom:2px solid var(--red); margin:0 0 15px 0; padding-bottom:5px;">PIZZA-OC</h3>
             <div class="v-img-container">
-                <img src="" id="v-img" alt="等待上传">
+                <img src="" id="v-img" alt="等待上传立绘">
                 <div class="img-nav" id="imgNav" style="display:none;">
                     <button class="nav-arrow" onclick="changeImg(-1)">◀</button>
                     <button class="nav-arrow" onclick="changeImg(1)">▶</button>
@@ -149,7 +144,7 @@
                 <div class="stat-bar"><div id="v-bar4" class="stat-fill" style="width:50%"></div></div>
             </div>
 
-            <div style="background:rgba(0,0,0,0.03); padding:10px; font-size:12px; border-radius:5px; margin-top:10px;">
+            <div style="background:rgba(0,0,0,0.03); padding:10px; font-size:12px; border-radius:5px; margin-top:10px; line-height:1.6;">
                 <b>[配料生平]</b> <span id="v-bio">---</span><br>
                 <b>[赏味期限]</b> <span id="v-wish">---</span><br>
                 <b>[避雷提示]</b> <span id="v-allergy">---</span>
@@ -170,18 +165,24 @@
             window.scrollTo(0,0);
         }
 
-        // 修改后的图片上传逻辑：追加而非覆盖
         function appendImages(input) {
             if (input.files) {
                 const filesArray = Array.from(input.files);
+                const localContainer = document.getElementById('local-preview-container');
                 let loadedCount = 0;
 
                 filesArray.forEach(file => {
                     const reader = new FileReader();
                     reader.onload = (e) => {
-                        imgList.push(e.target.result);
+                        const imgData = e.target.result;
+                        imgList.push(imgData);
+
+                        // 在输入框下方即时显示预览
+                        const thumb = document.createElement('img');
+                        thumb.src = imgData;
+                        localContainer.appendChild(thumb);
+
                         loadedCount++;
-                        // 当所有选中的图加载完，刷新显示
                         if(loadedCount === filesArray.length) {
                             refreshImgDisplay();
                         }
@@ -189,7 +190,7 @@
                     reader.readAsDataURL(file);
                 });
                 document.getElementById('check-img').classList.add('checked');
-                input.value = ""; // 重置input，允许重复选同一张图
+                input.value = ""; 
             }
         }
 
@@ -200,6 +201,7 @@
             document.getElementById('imgNav').style.display = "none";
             document.getElementById('imgCount').style.display = "none";
             document.getElementById('check-img').classList.remove('checked');
+            document.getElementById('local-preview-container').innerHTML = "";
         }
 
         function refreshImgDisplay() {
@@ -207,8 +209,6 @@
                 document.getElementById('v-img').src = imgList[currentImgIndex];
                 document.getElementById('imgCount').innerText = `${currentImgIndex + 1} / ${imgList.length}`;
                 document.getElementById('imgCount').style.display = "block";
-                
-                // 只有图超过1张才显示切换箭头
                 document.getElementById('imgNav').style.display = imgList.length > 1 ? "flex" : "none";
             }
         }
@@ -246,17 +246,16 @@
         }
 
         function saveAsImage() {
-            // 截图前暂时隐藏箭头，避免保存在图片里（如果需要）
-            document.getElementById('imgNav').style.display = "none";
-            
+            const nav = document.getElementById('imgNav');
+            const originalNavDisplay = nav.style.display;
+            nav.style.display = "none"; // 截图隐藏导航键
+
             html2canvas(document.getElementById('receipt')).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'pizza-oc.png';
+                link.download = 'pizza-oc-receipt.png';
                 link.href = canvas.toDataURL();
                 link.click();
-                
-                // 截图完恢复显示
-                if(imgList.length > 1) document.getElementById('imgNav').style.display = "flex";
+                nav.style.display = originalNavDisplay;
             });
         }
     </script>
