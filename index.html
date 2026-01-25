@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -31,11 +30,14 @@
         .input-body label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #555; }
         input[type="text"], input[type="file"], textarea, select { width: 100%; border: 1px solid #eee; padding: 10px; border-radius: 8px; box-sizing: border-box; background: #fafafa; font-size: 14px; }
 
+        /* 随机按钮 */
+        .random-btn { background: var(--yellow); border: 2px solid var(--dark); border-radius: 8px; cursor: pointer; padding: 5px 10px; font-size: 12px; font-weight: bold; margin-top: 5px; }
+
         /* 缩略图 */
         #local-preview-container img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; }
 
         /* 预览小票 */
-        .receipt-preview { background: var(--paper); border: 2px dashed var(--red); padding: 25px; margin-top: 20px; position: relative; transition: background 0.3s; }
+        .receipt-preview { background: var(--paper); border: 2px dashed var(--red); padding: 25px; margin-top: 20px; position: relative; transition: background 0.3s; color: #333; }
         .v-img-container { width: 100%; height: 280px; background: #eee; border-radius: 5px; overflow: hidden; margin-bottom: 15px; position: relative; }
         #v-img { width: 100%; height: 100%; object-fit: cover; }
         .img-nav { position: absolute; top: 0; bottom: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
@@ -49,7 +51,6 @@
         .save-btn { background: var(--green); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-size: 18px; font-weight: bold; margin-top: 20px; cursor: pointer; }
         .clear-btn { font-size: 10px; color: var(--red); cursor: pointer; text-decoration: underline; margin-left: 10px; }
         
-        /* 颜色选择器容器 */
         .color-picker-wrap { display: flex; align-items: center; gap: 10px; padding: 10px 15px; background: #eee; border-radius: 10px; margin-bottom: 15px; }
     </style>
 </head>
@@ -86,7 +87,13 @@
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-name"></div>
-                <div class="input-body"><label>产品名称</label><input type="text" id="name" placeholder="请输入角色名称" oninput="update()"></div>
+                <div class="input-body">
+                    <label>产品名称</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="name" placeholder="请输入角色名称" oninput="update()">
+                        <button class="random-btn" onclick="randomName()">🎲 随机</button>
+                    </div>
+                </div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-type"></div>
@@ -165,6 +172,14 @@
     <script>
         let imgList = [];
         let currentImgIndex = 0;
+        
+        // 🍕 披萨店名字库
+        const pizzaNames = [
+            "碳烤熔岩黑松露", "至尊芝心小恶魔", "法式香草奶油猫", "榴莲爆炸狂想曲",
+            "薄脆萨拉米之吻", "深海墨鱼芝士堡", "薄荷青提森林果", "迷迭香烤小羊排",
+            "加州阳光菠萝派", "地狱火红椒之怒", "抹茶红豆软欧包", "海盐焦糖脆脆冰",
+            "奥尔良狂欢假日", "黑糖珍珠波波饼", "野生松茸奢华宴", "帕尔马火腿之歌"
+        ];
 
         function goPage(num) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -172,9 +187,16 @@
             window.scrollTo(0,0);
         }
 
-        // 修改：改变小票背景色
         function changePaperColor(val) {
             document.getElementById('receipt').style.backgroundColor = val;
+        }
+
+        // 🎲 随机起名逻辑
+        function randomName() {
+            const index = Math.floor(Math.random() * pizzaNames.length);
+            const input = document.getElementById('name');
+            input.value = pizzaNames[index];
+            update();
         }
 
         function appendImages(input) {
@@ -238,7 +260,7 @@
                 const val = document.getElementById(field.id).value;
                 document.getElementById(field.vId).innerText = val || "---";
                 const check = document.getElementById(field.checkId);
-                if (val.trim().length > 0) check.classList.add('checked');
+                if (val && val.trim().length > 0) check.classList.add('checked');
                 else check.classList.remove('checked');
             });
 
