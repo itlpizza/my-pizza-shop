@@ -8,7 +8,6 @@
     <style>
         :root { --red: #d63031; --yellow: #feca57; --paper: #fffcf2; --green: #27ae60; --dark: #2d3436; }
         body { font-family: 'PingFang SC', sans-serif; background: #f7f1e3; margin: 0; padding-bottom: 50px; }
-        
         .page { display: none; width: 100%; max-width: 500px; margin: 0 auto; padding: 20px; box-sizing: border-box; }
         .active { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -30,36 +29,25 @@
         .input-body label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #555; }
         input[type="text"], input[type="file"], textarea, select { width: 100%; border: 1px solid #eee; padding: 10px; border-radius: 8px; box-sizing: border-box; background: #fafafa; font-size: 14px; }
 
-        /* 随机按钮 */
-        .random-btn { background: var(--yellow); border: 2px solid var(--dark); border-radius: 8px; cursor: pointer; padding: 5px 10px; font-size: 12px; font-weight: bold; margin-top: 5px; }
-
-        /* 缩略图 */
-        #local-preview-container img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; margin-right: 5px; margin-bottom: 5px; }
-
         /* 预览小票 */
-        .receipt-preview { background: var(--paper); border: 2px dashed var(--red); padding: 25px; margin-top: 20px; position: relative; transition: background 0.3s; color: #333; }
+        .receipt-preview { background: var(--paper); border: 2px dashed var(--red); padding: 25px; margin-top: 20px; position: relative; color: #333; }
         .v-img-container { width: 100%; height: 280px; background: #eee; border-radius: 5px; overflow: hidden; margin-bottom: 15px; position: relative; }
         #v-img { width: 100%; height: 100%; object-fit: cover; }
         .img-nav { position: absolute; top: 0; bottom: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
         .nav-arrow { background: rgba(0, 0, 0, 0.3); color: white; border: none; padding: 15px 10px; cursor: pointer; pointer-events: auto; }
-        .img-counter { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; }
-
+        
         .stat-bar { background: rgba(0,0,0,0.1); height: 10px; border-radius: 5px; margin: 4px 0 12px 0; overflow: hidden; }
         .stat-fill { background: linear-gradient(90deg, var(--yellow), var(--red)); height: 100%; transition: 0.3s; }
 
+        /* 存档库列表 */
+        .pizza-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 10px 0; }
+        .pizza-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #ddd; position: relative; cursor: pointer; transition: 0.2s; }
+        .pizza-card:hover { transform: scale(1.02); }
+        .pizza-card .preview-shot { width: 100%; height: 120px; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #999; object-fit: cover; }
+        .delete-btn { position: absolute; top: 5px; right: 5px; background: var(--red); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; z-index: 10; }
+
         .back-btn { background: var(--dark); color: white; border: none; padding: 10px 20px; border-radius: 10px; margin-bottom: 15px; cursor: pointer; }
         .save-btn { background: var(--green); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-size: 18px; font-weight: bold; margin-top: 20px; cursor: pointer; }
-        .clear-btn { font-size: 10px; color: var(--red); cursor: pointer; text-decoration: underline; margin-left: 10px; }
-        
-        .color-picker-wrap { display: flex; align-items: center; gap: 10px; padding: 10px 15px; background: #eee; border-radius: 10px; margin-bottom: 15px; }
-
-        /* 存档库专用样式 */
-        .search-bar { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--red); margin-bottom: 20px; box-sizing: border-box; font-size: 14px; }
-        .pizza-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 10px 0; }
-        .pizza-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #ddd; box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; position: relative; }
-        .pizza-card img { width: 100%; height: 150px; object-fit: cover; }
-        .pizza-info { padding: 10px; text-align: center; font-size: 14px; font-weight: bold; color: var(--dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .delete-btn { position: absolute; top: 5px; right: 5px; background: rgba(214, 48, 49, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-size: 12px; z-index: 5; }
     </style>
 </head>
 <body>
@@ -68,140 +56,84 @@
         <div class="main-menu">
             <div class="logo">🍕</div>
             <h1 style="color: var(--red); margin: 0;">PIZZA WORKSHOP</h1>
-            <p style="letter-spacing: 4px; color: #666; font-size: 12px;">角色赏味工坊</p>
-            <div class="menu-item" onclick="goPage(2)">✨ 制作专属披萨 (OC)</div>
-            <div class="menu-item" onclick="showCollection()">📦 我的披萨 (冷藏柜)</div>
-            <div class="menu-item" onclick="alert('广场正在装修中...')">🏘️ 菜品评论 (OC广场)</div>
-            <div class="menu-item" onclick="alert('欢迎光临！')">🛵 关于我们</div>
+            <p style="color: #666; font-size: 12px;">角色赏味工坊</p>
+            <div class="menu-item" onclick="goNewPizza()">✨ 制作新披萨</div>
+            <div class="menu-item" onclick="showCollection()">📦 我的披萨 (可修改存档)</div>
         </div>
     </div>
 
     <div id="page2" class="page">
-        <button class="back-btn" onclick="goPage(1)">← 返回大堂</button>
+        <button class="back-btn" onclick="goPage(1)">← 返回首页</button>
         
-        <div class="color-picker-wrap">
-            <label style="font-size: 13px; font-weight: bold;">小票纸张颜色：</label>
-            <input type="color" id="paperColor" value="#fffcf2" oninput="changePaperColor(this.value)" style="width:50px; height:30px; border:none; padding:0; cursor:pointer;">
-        </div>
-
         <div class="section-card">
-            <div class="section-header">基础档案（身份信息）</div>
+            <div class="section-header">身份信息</div>
             <div class="input-row">
                 <div class="check-box" id="check-img"></div>
                 <div class="input-body">
-                    <label>上传 OC 立绘 (照片) <span class="clear-btn" onclick="clearImages()">[清空立绘]</span></label>
+                    <label>上传立绘 <span style="color:red; cursor:pointer; font-size:10px;" onclick="clearImages()">[清空]</span></label>
                     <input type="file" id="imgInput" accept="image/*" multiple onchange="appendImages(this)">
-                    <div id="local-preview-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;"></div>
                 </div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-name"></div>
-                <div class="input-body">
-                    <label>产品名称</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" id="name" placeholder="请输入角色名称" oninput="update()">
-                        <button class="random-btn" onclick="randomName()">🎲 随机</button>
-                    </div>
-                </div>
+                <div class="input-body"><label>产品名称</label><input type="text" id="name" oninput="update()"></div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-type"></div>
-                <div class="input-body"><label>饼底类型（种族/物种）</label><input type="text" id="type" placeholder="如：兽人、人类..." oninput="update()"></div>
-            </div>
-            <div class="input-row">
-                <div class="check-box" id="check-tags"></div>
-                <div class="input-body"><label>风味调料（性格描述）</label><input type="text" id="tags" placeholder="输入性格关键词" oninput="update()"></div>
-            </div>
-            <div class="input-row">
-                <div class="check-box" id="check-date"></div>
-                <div class="input-body"><label>出炉日期（生日）</label><input type="text" id="date" placeholder="如：1月1日" oninput="update()"></div>
+                <div class="input-body"><label>饼底类型</label><input type="text" id="type" oninput="update()"></div>
             </div>
         </div>
 
         <div class="section-card">
-            <div class="section-header">核心数值（属性条）</div>
-            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>美味度</label><input type="range" id="stat1" value="50" oninput="update()"></div></div>
-            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>拉丝长度</label><input type="range" id="stat2" value="50" oninput="update()"></div></div>
-            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>脆度</label><input type="range" id="stat3" value="50" oninput="update()"></div></div>
-            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>卡路里</label><input type="range" id="stat4" value="50" oninput="update()"></div></div>
-        </div>
-
-        <div class="section-card">
-            <div class="section-header">深度设定（小票详情）</div>
-            <div class="input-row">
-                <div class="check-box" id="check-bio"></div>
-                <div class="input-body"><label>配料说明（角色生平）</label><textarea id="bio" rows="3" placeholder="角色的背景故事..." oninput="update()"></textarea></div>
-            </div>
-            <div class="input-row">
-                <div class="check-box" id="check-wish"></div>
-                <div class="input-body"><label>赏味期限（座右铭或愿望）</label><input type="text" id="wish" placeholder="愿望/格言" oninput="update()"></div>
-            </div>
-            <div class="input-row">
-                <div class="check-box" id="check-allergy"></div>
-                <div class="input-body"><label>过敏原提示（角色的怕点）</label><input type="text" id="allergy" placeholder="角色的弱点" oninput="update()"></div>
-            </div>
+            <div class="section-header">属性数值</div>
+            <div class="input-row"><div class="input-body"><label>美味度</label><input type="range" id="stat1" value="50" oninput="update()"></div></div>
+            <div class="input-row"><div class="input-body"><label>拉丝长度</label><input type="range" id="stat2" value="50" oninput="update()"></div></div>
         </div>
 
         <div id="receipt" class="receipt-preview">
-            <h3 style="text-align:center; border-bottom:2px solid var(--red); margin:0 0 15px 0; padding-bottom:5px;">PIZZA-OC</h3>
+            <h3 style="text-align:center; border-bottom:2px solid var(--red); margin-bottom:15px;">PIZZA-OC</h3>
             <div class="v-img-container">
-                <img src="" id="v-img" alt="立绘预览">
+                <img src="" id="v-img">
                 <div class="img-nav" id="imgNav" style="display:none;">
                     <button class="nav-arrow" onclick="changeImg(-1)">◀</button>
                     <button class="nav-arrow" onclick="changeImg(1)">▶</button>
                 </div>
-                <div class="img-counter" id="imgCount" style="display:none;">0 / 0</div>
             </div>
             <p><b>品名:</b> <span id="v-name">---</span></p>
-            <p><b>饼底:</b> <span id="v-type">---</span> | <b>生日:</b> <span id="v-date">---</span></p>
-            <p><b>调味:</b> <span id="v-tags">---</span></p>
-            
+            <p><b>饼底:</b> <span id="v-type">---</span></p>
             <div style="margin-top:10px;">
-                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>🧀 美味度</span><span id="v-val1">50%</span></div>
+                <div style="font-size:11px;">🧀 美味度 <span id="v-val1">50%</span></div>
                 <div class="stat-bar"><div id="v-bar1" class="stat-fill" style="width:50%"></div></div>
-                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>🔥 拉丝长</span><span id="v-val2">50%</span></div>
-                <div class="stat-bar"><div id="v-bar2" class="stat-fill" style="width:50%"></div></div>
-                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>🥨 脆度</span><span id="v-val3">50%</span></div>
-                <div class="stat-bar"><div id="v-bar3" class="stat-fill" style="width:50%"></div></div>
-                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>🍔 卡路里</span><span id="v-val4">50%</span></div>
-                <div class="stat-bar"><div id="v-bar4" class="stat-fill" style="width:50%"></div></div>
             </div>
-
-            <div style="background:rgba(0,0,0,0.05); padding:10px; font-size:12px; border-radius:5px; margin-top:10px; line-height:1.6;">
-                <b>[配料生平]</b> <span id="v-bio">---</span><br>
-                <b>[赏味期限]</b> <span id="v-wish">---</span><br>
-                <b>[避雷提示]</b> <span id="v-allergy">---</span>
-            </div>
-            <p style="text-align:center; font-size:10px; color:#999; margin-top:15px;">*** 新鲜出炉，请尽快爱护 ***</p>
         </div>
         
-        <button class="save-btn" onclick="saveAndArchive()">📦 打包出炉 (保存图片并存入冷藏柜)</button>
+        <button class="save-btn" onclick="saveToLibrary()">💾 保存到我的披萨</button>
+        <button class="save-btn" style="background:var(--dark); margin-top:10px;" onclick="downloadReceipt()">🖼️ 仅导出小票图片</button>
     </div>
 
     <div id="page3" class="page">
-        <button class="back-btn" onclick="goPage(1)">← 返回大堂</button>
+        <button class="back-btn" onclick="goPage(1)">← 返回首页</button>
         <h2 style="color:var(--red); text-align:center;">🍕 我的冷藏柜</h2>
-        <input type="text" class="search-bar" id="searchInput" placeholder="🔍 输入名字查找披萨..." oninput="filterPizzas()">
         <div id="pizza-list" class="pizza-grid"></div>
     </div>
 
     <script>
         let imgList = [];
         let currentImgIndex = 0;
-        const pizzaNames = ["碳烤熔岩黑松露", "至尊芝心小恶魔", "法式香草奶油猫", "榴莲爆炸狂想曲", "薄脆萨拉米之吻", "深海墨鱼芝士堡", "薄荷青提森林果", "迷迭香烤小羊排"];
+        let editingId = null; // 记录当前是否在修改旧存档
 
         function goPage(num) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('page' + num).classList.add('active');
-            window.scrollTo(0,0);
         }
 
-        function changePaperColor(val) { document.getElementById('receipt').style.backgroundColor = val; }
-
-        function randomName() {
-            const index = Math.floor(Math.random() * pizzaNames.length);
-            document.getElementById('name').value = pizzaNames[index];
+        function goNewPizza() {
+            editingId = null;
+            document.getElementById('name').value = "";
+            document.getElementById('type').value = "";
+            clearImages();
             update();
+            goPage(2);
         }
 
         function appendImages(input) {
@@ -210,125 +142,131 @@
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         imgList.push(e.target.result);
-                        const thumb = document.createElement('img');
-                        thumb.src = e.target.result;
-                        document.getElementById('local-preview-container').appendChild(thumb);
                         refreshImgDisplay();
                     };
                     reader.readAsDataURL(file);
                 });
                 document.getElementById('check-img').classList.add('checked');
-                input.value = ""; 
             }
         }
 
         function clearImages() {
-            imgList = []; currentImgIndex = 0;
+            imgList = [];
             document.getElementById('v-img').src = "";
             document.getElementById('imgNav').style.display = "none";
-            document.getElementById('imgCount').style.display = "none";
             document.getElementById('check-img').classList.remove('checked');
-            document.getElementById('local-preview-container').innerHTML = "";
         }
 
         function refreshImgDisplay() {
             if (imgList.length > 0) {
                 document.getElementById('v-img').src = imgList[currentImgIndex];
-                document.getElementById('imgCount').innerText = `${currentImgIndex + 1} / ${imgList.length}`;
-                document.getElementById('imgCount').style.display = "block";
                 document.getElementById('imgNav').style.display = imgList.length > 1 ? "flex" : "none";
             }
         }
 
         function changeImg(step) {
-            if(imgList.length <= 1) return;
             currentImgIndex = (currentImgIndex + step + imgList.length) % imgList.length;
             refreshImgDisplay();
         }
 
         function update() {
-            const fields = [
-                { id: 'name', vId: 'v-name', checkId: 'check-name' },
-                { id: 'type', vId: 'v-type', checkId: 'check-type' },
-                { id: 'tags', vId: 'v-tags', checkId: 'check-tags' },
-                { id: 'date', vId: 'v-date', checkId: 'check-date' },
-                { id: 'bio', vId: 'v-bio', checkId: 'check-bio' },
-                { id: 'wish', vId: 'v-wish', checkId: 'check-wish' },
-                { id: 'allergy', vId: 'v-allergy', checkId: 'check-allergy' }
-            ];
-            fields.forEach(field => {
-                const val = document.getElementById(field.id).value;
-                document.getElementById(field.vId).innerText = val || "---";
-                const check = document.getElementById(field.checkId);
-                if (val && val.trim().length > 0) check.classList.add('checked');
-                else check.classList.remove('checked');
-            });
-            for(let i=1; i<=4; i++) {
-                const s = document.getElementById('stat' + i).value;
-                document.getElementById('v-bar' + i).style.width = s + "%";
-                document.getElementById('v-val' + i).innerText = s + "%";
+            const name = document.getElementById('name').value;
+            const type = document.getElementById('type').value;
+            document.getElementById('v-name').innerText = name || "---";
+            document.getElementById('v-type').innerText = type || "---";
+            
+            const s1 = document.getElementById('stat1').value;
+            document.getElementById('v-bar1').style.width = s1 + "%";
+            document.getElementById('v-val1').innerText = s1 + "%";
+
+            document.getElementById('check-name').className = name ? "check-box checked" : "check-box";
+            document.getElementById('check-type').className = type ? "check-box checked" : "check-box";
+        }
+
+        // 核心：保存数据到本地
+        function saveToLibrary() {
+            const name = document.getElementById('name').value || "未命名";
+            
+            const pizzaData = {
+                id: editingId || Date.now(),
+                name: name,
+                type: document.getElementById('type').value,
+                stat1: document.getElementById('stat1').value,
+                images: imgList
+            };
+
+            let library = JSON.parse(localStorage.getItem('pizzaLibrary') || '[]');
+            
+            if (editingId) {
+                const index = library.findIndex(p => p.id === editingId);
+                library[index] = pizzaData;
+            } else {
+                library.push(pizzaData);
             }
+
+            localStorage.setItem('pizzaLibrary', JSON.stringify(library));
+            alert('✅ 存档成功！');
+            showCollection();
         }
 
-        // 保存图片并存入本地数据库
-        function saveAndArchive() {
-            const ocName = document.getElementById('name').value.trim() || "未命名披萨";
-            const nav = document.getElementById('imgNav');
-            nav.style.display = "none"; 
-
-            html2canvas(document.getElementById('receipt')).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                
-                // 下载图片
-                const link = document.createElement('a');
-                link.download = `${ocName}.png`;
-                link.href = imgData;
-                link.click();
-
-                // 存入存档
-                let collection = JSON.parse(localStorage.getItem('myPizzas') || '[]');
-                collection.push({ name: ocName, image: imgData });
-                localStorage.setItem('myPizzas', JSON.stringify(collection));
-
-                alert('🎉 出炉成功！已存入“我的披萨”');
-                nav.style.display = imgList.length > 1 ? "flex" : "none";
-            });
-        }
-
-        // 存档库逻辑
-        function renderList(term = "") {
+        // 展示存档库
+        function showCollection() {
             const list = document.getElementById('pizza-list');
             list.innerHTML = '';
-            let collection = JSON.parse(localStorage.getItem('myPizzas') || '[]');
-            const filtered = collection.filter(p => p.name.toLowerCase().includes(term.toLowerCase()));
-            
-            if(filtered.length === 0) {
-                list.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#999; padding:20px;">没有找到披萨...</p>';
-                return;
-            }
+            const library = JSON.parse(localStorage.getItem('pizzaLibrary') || '[]');
 
-            filtered.forEach((item, index) => {
+            library.forEach((item) => {
                 const card = document.createElement('div');
                 card.className = 'pizza-card';
+                // 使用保存的第一张图作为预览
+                const previewImg = item.images.length > 0 ? `<img src="${item.images[0]}" class="preview-shot">` : `<div class="preview-shot">无立绘</div>`;
+                
                 card.innerHTML = `
-                    <button class="delete-btn" onclick="deletePizza(${index}, event)">×</button>
-                    <img src="${item.image}" onclick="window.open().document.write('<img src=\\''+this.src+'\\' style=\\'width:100%\\'>')">
-                    <div class="pizza-info">${item.name}</div>
+                    <button class="delete-btn" onclick="deletePizza(${item.id}, event)">×</button>
+                    ${previewImg}
+                    <div style="padding:10px; text-align:center; font-weight:bold;">${item.name}</div>
                 `;
+                card.onclick = () => loadPizza(item.id);
                 list.appendChild(card);
             });
+            goPage(3);
         }
 
-        function showCollection() { renderList(); goPage(3); }
-        function filterPizzas() { renderList(document.getElementById('searchInput').value); }
-        function deletePizza(index, e) {
-            e.stopPropagation();
-            if(confirm('确定要销毁这张小票吗？')) {
-                let col = JSON.parse(localStorage.getItem('myPizzas'));
-                col.splice(index, 1);
-                localStorage.setItem('myPizzas', JSON.stringify(col));
-                renderList(document.getElementById('searchInput').value);
+        // 加载存档进行修改
+        function loadPizza(id) {
+            const library = JSON.parse(localStorage.getItem('pizzaLibrary') || '[]');
+            const pizza = library.find(p => p.id === id);
+            
+            if (pizza) {
+                editingId = pizza.id;
+                document.getElementById('name').value = pizza.name;
+                document.getElementById('type').value = pizza.type;
+                document.getElementById('stat1').value = pizza.stat1;
+                imgList = pizza.images;
+                currentImgIndex = 0;
+                refreshImgDisplay();
+                update();
+                goPage(2);
             }
+        }
+
+        function deletePizza(id, e) {
+            e.stopPropagation();
+            if(confirm('确定删除吗？')) {
+                let library = JSON.parse(localStorage.getItem('pizzaLibrary') || '[]');
+                library = library.filter(p => p.id !== id);
+                localStorage.setItem('pizzaLibrary', JSON.stringify(library));
+                showCollection();
+            }
+        }
+
+        function downloadReceipt() {
+            html2canvas(document.getElementById('receipt')).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'pizza.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
         }
     </script>
 </body>
