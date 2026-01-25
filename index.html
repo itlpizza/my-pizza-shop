@@ -3,27 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的披萨店</title>
+    <title>OC 披萨店制作器</title>
     <style>
-        body { font-family: 'PingFang SC', sans-serif; margin: 0; background: #fdf2e9; text-align: center; }
-        .container { padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); max-width: 450px; margin: 20px auto; }
-        img { width: 100%; border-radius: 15px; margin-bottom: 15px; }
-        h1 { color: #d35400; margin: 10px 0; }
-        p { color: #666; line-height: 1.6; }
-        .price { font-size: 24px; color: #e67e22; font-weight: bold; margin: 10px 0; }
-        .btn { background: #e67e22; color: white; border: none; padding: 15px 30px; border-radius: 30px; font-size: 18px; cursor: pointer; text-decoration: none; display: inline-block; }
+        body { font-family: sans-serif; background: #f7f1e3; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        
+        /* 1. 制作台样式（输入框） */
+        .editor-zone { 
+            background: white; padding: 20px; border-radius: 15px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; margin-bottom: 30px;
+        }
+        .editor-zone h2 { color: #d63031; font-size: 18px; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        
+        /* 2. 预览区样式（就是那个披萨盒卡片） */
+        .pizza-box {
+            background: #fffcf2; max-width: 400px; width: 100%;
+            border: 2px dashed #d63031; border-radius: 5px; padding: 20px;
+            box-shadow: 10px 10px 0px rgba(214, 48, 49, 0.1); box-sizing: border-box;
+        }
+        .oc-photo { width: 100%; height: 250px; object-fit: cover; border: 1px solid #eee; }
+        .stat-bar { background: #eee; height: 10px; border-radius: 5px; margin: 5px 0 15px 0; }
+        .stat-fill { background: #feca57; height: 100%; width: 50%; border-right: 3px solid #d63031; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <img src="pizza.jpg" alt="美味披萨">
-            <h1>🍕 意式至尊披萨店</h1>
-            <p>这是我亲手写的第一个自适应网站！无论是在电脑还是手机上，味道（视觉）都一样棒！</p>
-            <p class="price">全场 8 折优惠</p>
-            <a href="tel:你的电话" class="btn">立即订餐</a>
-        </div>
+
+    <div class="editor-zone">
+        <h2>🛠️ 制作你的 OC 空间</h2>
+        <input type="text" id="inName" placeholder="输入 OC 名字" oninput="updateCard()">
+        <input type="text" id="inTags" placeholder="输入标签（如：#活泼 #芝士）" oninput="updateCard()">
+        <label>芝士浓度：</label>
+        <input type="range" id="inCheese" min="0" max="100" value="50" oninput="updateCard()">
     </div>
+
+    <div class="pizza-box" id="capture">
+        <img src="pizza.jpg" class="oc-photo" id="cardImg">
+        <h2 id="cardName" style="border-bottom: 2px solid #d63031;">待定角色</h2>
+        <p id="cardTags" style="color: #d63031; font-weight: bold;">#新出炉</p>
+        
+        <label>🧀 芝士浓度</label>
+        <div class="stat-bar"><div class="stat-fill" id="barCheese" style="width: 50%;"></div></div>
+        
+        <p style="text-align: center; font-size: 12px; color: #aaa;">—— 披萨空间专属小票 ——</p>
+    </div>
+
+    <script>
+        function updateCard() {
+            // 获取输入框的值
+            const name = document.getElementById('inName').value;
+            const tags = document.getElementById('inTags').value;
+            const cheese = document.getElementById('inCheese').value;
+
+            // 把值填到预览卡片里
+            document.getElementById('cardName').innerText = name || "待定角色";
+            document.getElementById('cardTags').innerText = tags || "#新出炉";
+            document.getElementById('barCheese').style.width = cheese + "%";
+        }
+    </script>
 </body>
 </html>
