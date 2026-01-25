@@ -4,122 +4,182 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PIZZA SHOP | 角色工坊</title>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
-        :root { --red: #d63031; --yellow: #feca57; --paper: #fffcf2; }
-        body { font-family: 'PingFang SC', sans-serif; background: #f7f1e3; margin: 0; display: flex; justify-content: center; }
+        :root { --red: #d63031; --yellow: #feca57; --paper: #fffcf2; --dark: #2d3436; }
+        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f7f1e3; margin: 0; display: flex; justify-content: center; }
         
         /* 页面切换逻辑 */
         .page { display: none; width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; }
-        .active { display: block; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- 第一页：大堂菜单样式 --- */
-        .main-menu { text-align: center; background: white; border-radius: 20px; padding: 40px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-top: 50px; }
+        /* --- 第一页：大堂菜单 --- */
+        .main-menu { text-align: center; background: white; border-radius: 30px; padding: 50px 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); margin-top: 40px; border: 5px solid var(--red); }
+        .logo { font-size: 60px; margin-bottom: 10px; }
         .menu-item { 
             background: var(--paper); border: 2px solid var(--red); padding: 20px; 
-            margin: 15px 0; border-radius: 10px; cursor: pointer; transition: 0.3s;
-            font-size: 20px; font-weight: bold; color: var(--red);
+            margin: 18px 0; border-radius: 15px; cursor: pointer; transition: 0.2s;
+            font-size: 18px; font-weight: bold; color: var(--red); box-shadow: 4px 4px 0px var(--red);
         }
-        .menu-item:hover { transform: scale(1.05); background: var(--yellow); }
+        .menu-item:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--red); background: var(--yellow); }
 
-        /* --- 第二页：制作器样式 --- */
-        .editor-container { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #555; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        /* --- 第二页：制作工坊 --- */
+        .editor-container { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: var(--dark); }
+        input[type="text"], input[type="file"], select, textarea { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; box-sizing: border-box; font-size: 14px; }
+        input:focus { border-color: var(--red); outline: none; }
         
+        /* 属性滑动条 */
+        .range-wrap { display: flex; align-items: center; gap: 10px; }
+        input[type="range"] { flex: 1; accent-color: var(--red); }
+
         /* 实时预览小票样式 */
         .receipt-preview { 
-            background: var(--paper); border: 2px dashed var(--red); padding: 20px; margin-top: 20px;
-            position: relative; font-family: 'Courier New', Courier, monospace;
+            background: var(--paper); border: 2px dashed var(--red); padding: 25px; 
+            position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            color: #333;
         }
-        .stat-bar { background: #eee; height: 10px; border-radius: 5px; margin: 5px 0 10px 0; overflow: hidden; }
-        .stat-fill { background: var(--yellow); height: 100%; width: 50%; border-right: 2px solid var(--red); transition: 0.3s; }
-        .back-btn { background: #666; color: white; border: none; padding: 10px; border-radius: 5px; margin-bottom: 10px; cursor: pointer; }
+        .v-img-container { width: 100%; height: 280px; background: #eee; border-radius: 5px; overflow: hidden; margin-bottom: 15px; border: 1px solid #ddd; }
+        #v-img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .receipt-title { text-align: center; border-bottom: 2px solid var(--red); margin: 0 0 15px 0; padding-bottom: 5px; font-family: 'Courier New', monospace; }
+        .receipt-row { margin: 8px 0; font-size: 14px; display: flex; border-bottom: 1px dotted #ccc; padding-bottom: 3px; }
+        .receipt-row b { min-width: 80px; color: var(--red); }
+
+        /* 属性条预览 */
+        .stat-preview { margin: 15px 0; }
+        .stat-bar-name { font-size: 12px; margin-bottom: 2px; display: flex; justify-content: space-between; }
+        .stat-bar { background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden; margin-bottom: 8px; border: 1px solid #ccc; }
+        .stat-fill { background: linear-gradient(90deg, var(--yellow), var(--red)); height: 100%; width: 50%; transition: 0.3s; }
+
+        .back-btn { background: var(--dark); color: white; border: none; padding: 10px 20px; border-radius: 10px; margin-bottom: 15px; cursor: pointer; font-weight: bold; }
+        .save-btn { background: var(--red); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-size: 18px; font-weight: bold; margin-top: 15px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div id="page1" class="page active">
         <div class="main-menu">
-            <h1 style="color: var(--red);">🍕 欢迎来到披萨店</h1>
-            <p>Menu</p>
-            <div class="menu-item" onclick="goPage(2)">✨ 制作你的专属披萨 (OC)</div>
-            <div class="menu-item" onclick="alert('广场装修中...')">🏘️ 菜品评论 (OC广场)</div>
-            <div class="menu-item" onclick="alert('暂无外卖...')">🛵 关于我们</div>
+            <div class="logo">🍕</div>
+            <h1 style="color: var(--red); margin: 0;">PIZZA WORKSHOP</h1>
+            <p style="letter-spacing: 4px; color: #666; font-size: 12px;">角色赏味工坊</p>
+            
+            <div class="menu-item" onclick="goPage(2)">✨ 制作专属披萨 (OC)</div>
+            <div class="menu-item" onclick="alert('广场正在装修中，敬请期待！')">🏘️ 菜品评论 (OC广场)</div>
+            <div class="menu-item" onclick="alert('这是披萨的个人空间，欢迎光临！')">🛵 关于我们</div>
         </div>
     </div>
 
     <div id="page2" class="page">
         <button class="back-btn" onclick="goPage(1)">← 返回大堂</button>
+        
         <div class="editor-container">
-            <h2 style="color: var(--red); text-align: center;">🎨 后厨加工中...</h2>
+            <h2 style="color: var(--red); text-align: center; margin-top: 0;">🔪 后厨加工台</h2>
             
             <div class="form-group">
+                <label>📷 上传 OC 立绘 (照片)</label>
+                <input type="file" id="imgInput" accept="image/*" onchange="previewImage(this)">
+            </div>
+
+            <div class="form-group">
                 <label>产品名称 (角色名)</label>
-                <input type="text" id="name" placeholder="例如：培根、小火龙" oninput="update()">
+                <input type="text" id="name" placeholder="请输入名号" oninput="update()">
             </div>
             <div class="form-group">
-                <label>饼底类型 (种族)</label>
-                <select id="type" onchange="update()">
-                    <option value="薄脆型(人类)">薄脆型 (人类)</option>
-                    <option value="厚底芝心(兽人)">厚底芝心 (兽人)</option>
-                    <option value="全麦健康(精灵)">全麦健康 (精灵)</option>
-                </select>
+                <label>饼底类型 (种族/物种)</label>
+                <input type="text" id="type" placeholder="例如：厚底芝心(兽人)" oninput="update()">
             </div>
             <div class="form-group">
-                <label>风味调料 (标签)</label>
+                <label>风味调料 (性格标签)</label>
                 <input type="text" id="tags" placeholder="#特辣 #超浓缩芝士" oninput="update()">
             </div>
 
             <div class="form-group">
-                <label>美味度 (魅力)</label>
-                <input type="range" id="stat1" oninput="update()">
+                <label>🧀 芝士拉丝度 (社交能力)</label>
+                <div class="range-wrap"><input type="range" id="stat1" value="50" oninput="update()"></div>
             </div>
             <div class="form-group">
-                <label>拉丝长度 (社交)</label>
-                <input type="range" id="stat2" oninput="update()">
+                <label>🔥 刚出炉热度 (战斗/魅力)</label>
+                <div class="range-wrap"><input type="range" id="stat2" value="50" oninput="update()"></div>
             </div>
 
             <div class="form-group">
-                <label>配料说明 (生平)</label>
-                <textarea id="bio" rows="3" oninput="update()"></textarea>
+                <label>配料说明 (个人简介/生平)</label>
+                <textarea id="bio" rows="3" placeholder="写下你的故事..." oninput="update()"></textarea>
             </div>
         </div>
 
         <div class="receipt-preview" id="receipt">
-            <h3 style="text-align: center; border-bottom: 2px solid var(--red); padding-bottom: 5px;">OC 赏味小票</h3>
-            <p><b>品名：</b><span id="v-name">未定名</span></p>
-            <p><b>型号：</b><span id="v-type">薄脆型</span></p>
-            <p><b>调味：</b><span id="v-tags">#新鲜出炉</span></p>
+            <h3 class="receipt-title">ORDER #OC-RECIPE</h3>
             
-            <label>📊 口味分布</label>
-            <div class="stat-bar"><div id="v-bar1" class="stat-fill" style="width: 50%;"></div></div>
-            <div class="stat-bar"><div id="v-bar2" class="stat-fill" style="width: 50%;"></div></div>
+            <div class="v-img-container">
+                <img src="pizza.jpg" id="v-img" alt="等待上传">
+            </div>
 
-            <p style="background: #eee; padding: 10px; font-size: 13px;">
-                <b>配料：</b><span id="v-bio">等待后厨切配...</span>
+            <div class="receipt-row"><b>品名：</b><span id="v-name">未命名披萨</span></div>
+            <div class="receipt-row"><b>型号：</b><span id="v-type">标准型饼底</span></div>
+            <div class="receipt-row"><b>调味：</b><span id="v-tags">#新鲜出炉</span></div>
+            
+            <div class="stat-preview">
+                <div class="stat-bar-name"><span>🧀 拉丝度</span><span id="v-val1">50%</span></div>
+                <div class="stat-bar"><div id="v-bar1" class="stat-fill" style="width: 50%;"></div></div>
+                
+                <div class="stat-bar-name"><span>🔥 赏味热度</span><span id="v-val2">50%</span></div>
+                <div class="stat-bar"><div id="v-bar2" class="stat-fill" style="width: 50%;"></div></div>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.03); padding: 10px; font-size: 13px; border-radius: 5px;">
+                <b style="color: var(--red);">[配料详情]</b><br>
+                <span id="v-bio">等待后厨切配中...</span>
+            </div>
+            
+            <p style="text-align: center; font-size: 10px; color: #999; margin-top: 20px;">
+                --------------------------------<br>
+                感谢光临，祝您赏味愉快！
             </p>
-            <p style="text-align: center; font-size: 10px; color: #999;">*** 请在赏味期限前爱护此 OC ***</p>
         </div>
+        
+        <p style="text-align: center; font-size: 12px; color: #666; margin-top: 10px;">温馨提示：满意后可手动截屏保存小票</p>
     </div>
 
     <script>
-        // 翻页逻辑
+        // 1. 翻页逻辑
         function goPage(num) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('page' + num).classList.add('active');
+            window.scrollTo(0,0);
         }
 
-        // 实时渲染逻辑
+        // 2. 图片预览逻辑
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('v-img').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // 3. 实时文字/数值同步逻辑
         function update() {
-            document.getElementById('v-name').innerText = document.getElementById('name').value || "未定名";
-            document.getElementById('v-type').innerText = document.getElementById('type').value;
+            // 文字部分
+            document.getElementById('v-name').innerText = document.getElementById('name').value || "未命名披萨";
+            document.getElementById('v-type').innerText = document.getElementById('type').value || "标准型饼底";
             document.getElementById('v-tags').innerText = document.getElementById('tags').value || "#新鲜出炉";
-            document.getElementById('v-bio').innerText = document.getElementById('bio').value || "等待后厨切配...";
+            document.getElementById('v-bio').innerText = document.getElementById('bio').value || "等待后厨切配中...";
             
-            document.getElementById('v-bar1').style.width = document.getElementById('stat1').value + "%";
-            document.getElementById('v-bar2').style.width = document.getElementById('stat2').value + "%";
+            // 数值条部分
+            const s1 = document.getElementById('stat1').value;
+            const s2 = document.getElementById('stat2').value;
+            
+            document.getElementById('v-bar1').style.width = s1 + "%";
+            document.getElementById('v-val1').innerText = s1 + "%";
+            
+            document.getElementById('v-bar2').style.width = s2 + "%";
+            document.getElementById('v-val2').innerText = s2 + "%";
         }
     </script>
 </body>
