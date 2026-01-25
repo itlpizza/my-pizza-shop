@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -28,26 +29,28 @@
         .checked::after { content: "✓"; font-weight: bold; }
         .input-body { flex-grow: 1; }
         .input-body label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #555; }
-        input[type="text"], input[type="file"], textarea { width: 100%; border: 1px solid #eee; padding: 10px; border-radius: 8px; box-sizing: border-box; background: #fafafa; font-size: 14px; }
+        input[type="text"], input[type="file"], textarea, select { width: 100%; border: 1px solid #eee; padding: 10px; border-radius: 8px; box-sizing: border-box; background: #fafafa; font-size: 14px; }
 
-        /* 即时预览缩略图 */
-        #local-preview-container img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; animation: popIn 0.3s; }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        /* 缩略图 */
+        #local-preview-container img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; }
 
-        /* 预览区（小票） */
-        .receipt-preview { background: var(--paper); border: 2px dashed var(--red); padding: 25px; margin-top: 20px; position: relative; }
-        .v-img-container { width: 100%; height: 280px; background: #eee; border-radius: 5px; overflow: hidden; margin-bottom: 15px; position: relative; border: 1px solid #ddd; }
+        /* 预览小票 */
+        .receipt-preview { background: var(--paper); border: 2px dashed var(--red); padding: 25px; margin-top: 20px; position: relative; transition: background 0.3s; }
+        .v-img-container { width: 100%; height: 280px; background: #eee; border-radius: 5px; overflow: hidden; margin-bottom: 15px; position: relative; }
         #v-img { width: 100%; height: 100%; object-fit: cover; }
         .img-nav { position: absolute; top: 0; bottom: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
-        .nav-arrow { background: rgba(0, 0, 0, 0.3); color: white; border: none; padding: 15px 10px; cursor: pointer; pointer-events: auto; font-size: 20px; }
+        .nav-arrow { background: rgba(0, 0, 0, 0.3); color: white; border: none; padding: 15px 10px; cursor: pointer; pointer-events: auto; }
         .img-counter { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; }
 
-        .stat-bar { background: #e0e0e0; height: 10px; border-radius: 5px; margin: 4px 0 12px 0; overflow: hidden; }
+        .stat-bar { background: rgba(0,0,0,0.1); height: 10px; border-radius: 5px; margin: 4px 0 12px 0; overflow: hidden; }
         .stat-fill { background: linear-gradient(90deg, var(--yellow), var(--red)); height: 100%; transition: 0.3s; }
 
         .back-btn { background: var(--dark); color: white; border: none; padding: 10px 20px; border-radius: 10px; margin-bottom: 15px; cursor: pointer; }
         .save-btn { background: var(--green); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-size: 18px; font-weight: bold; margin-top: 20px; cursor: pointer; }
         .clear-btn { font-size: 10px; color: var(--red); cursor: pointer; text-decoration: underline; margin-left: 10px; }
+        
+        /* 颜色选择器容器 */
+        .color-picker-wrap { display: flex; align-items: center; gap: 10px; padding: 10px 15px; background: #eee; border-radius: 10px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -65,7 +68,11 @@
 
     <div id="page2" class="page">
         <button class="back-btn" onclick="goPage(1)">← 返回大堂</button>
-        <h2 style="color:var(--red); text-align:center; margin-top:0;">🔪 后厨加工清单</h2>
+        
+        <div class="color-picker-wrap">
+            <label style="font-size: 13px; font-weight: bold;">小票纸张颜色：</label>
+            <input type="color" id="paperColor" value="#fffcf2" oninput="changePaperColor(this.value)" style="width:50px; height:30px; border:none; padding:0; cursor:pointer;">
+        </div>
 
         <div class="section-card">
             <div class="section-header">基础档案（身份信息）</div>
@@ -107,22 +114,22 @@
             <div class="section-header">深度设定（小票详情）</div>
             <div class="input-row">
                 <div class="check-box" id="check-bio"></div>
-                <div class="input-body"><label>配料说明（角色生平）</label><textarea id="bio" rows="3" placeholder="写下角色的故事背景..." oninput="update()"></textarea></div>
+                <div class="input-body"><label>配料说明（角色生平）</label><textarea id="bio" rows="3" placeholder="角色的背景故事..." oninput="update()"></textarea></div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-wish"></div>
-                <div class="input-body"><label>赏味期限（座右铭或愿望）</label><input type="text" id="wish" placeholder="座右铭/愿望" oninput="update()"></div>
+                <div class="input-body"><label>赏味期限（座右铭或愿望）</label><input type="text" id="wish" placeholder="愿望/格言" oninput="update()"></div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-allergy"></div>
-                <div class="input-body"><label>过敏原提示（角色的怕点）</label><input type="text" id="allergy" placeholder="害怕的事物/弱点" oninput="update()"></div>
+                <div class="input-body"><label>过敏原提示（角色的怕点）</label><input type="text" id="allergy" placeholder="角色的弱点" oninput="update()"></div>
             </div>
         </div>
 
         <div id="receipt" class="receipt-preview">
             <h3 style="text-align:center; border-bottom:2px solid var(--red); margin:0 0 15px 0; padding-bottom:5px;">PIZZA-OC</h3>
             <div class="v-img-container">
-                <img src="" id="v-img" alt="等待上传立绘">
+                <img src="" id="v-img" alt="立绘预览">
                 <div class="img-nav" id="imgNav" style="display:none;">
                     <button class="nav-arrow" onclick="changeImg(-1)">◀</button>
                     <button class="nav-arrow" onclick="changeImg(1)">▶</button>
@@ -144,7 +151,7 @@
                 <div class="stat-bar"><div id="v-bar4" class="stat-fill" style="width:50%"></div></div>
             </div>
 
-            <div style="background:rgba(0,0,0,0.03); padding:10px; font-size:12px; border-radius:5px; margin-top:10px; line-height:1.6;">
+            <div style="background:rgba(0,0,0,0.05); padding:10px; font-size:12px; border-radius:5px; margin-top:10px; line-height:1.6;">
                 <b>[配料生平]</b> <span id="v-bio">---</span><br>
                 <b>[赏味期限]</b> <span id="v-wish">---</span><br>
                 <b>[避雷提示]</b> <span id="v-allergy">---</span>
@@ -165,27 +172,24 @@
             window.scrollTo(0,0);
         }
 
+        // 修改：改变小票背景色
+        function changePaperColor(val) {
+            document.getElementById('receipt').style.backgroundColor = val;
+        }
+
         function appendImages(input) {
             if (input.files) {
                 const filesArray = Array.from(input.files);
                 const localContainer = document.getElementById('local-preview-container');
-                let loadedCount = 0;
-
                 filesArray.forEach(file => {
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         const imgData = e.target.result;
                         imgList.push(imgData);
-
-                        // 在输入框下方即时显示预览
                         const thumb = document.createElement('img');
                         thumb.src = imgData;
                         localContainer.appendChild(thumb);
-
-                        loadedCount++;
-                        if(loadedCount === filesArray.length) {
-                            refreshImgDisplay();
-                        }
+                        refreshImgDisplay();
                     };
                     reader.readAsDataURL(file);
                 });
@@ -248,7 +252,7 @@
         function saveAsImage() {
             const nav = document.getElementById('imgNav');
             const originalNavDisplay = nav.style.display;
-            nav.style.display = "none"; // 截图隐藏导航键
+            nav.style.display = "none"; 
 
             html2canvas(document.getElementById('receipt')).then(canvas => {
                 const link = document.createElement('a');
