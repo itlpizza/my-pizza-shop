@@ -30,18 +30,30 @@
         .input-body label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #555; }
         input[type="text"], input[type="file"], textarea { width: 100%; border: 1px solid #eee; padding: 10px; border-radius: 8px; box-sizing: border-box; background: #fafafa; font-size: 14px; }
 
-        /* 预览区 - 支持多图切换 */
+        /* 预览区 - 多图切换增强 */
         .receipt-preview { background: var(--paper); border: 2px dashed var(--red); padding: 25px; margin-top: 20px; position: relative; }
-        .v-img-container { width: 100%; height: 280px; background: #eee; border-radius: 5px; overflow: hidden; margin-bottom: 15px; position: relative; }
-        #v-img { width: 100%; height: 100%; object-fit: cover; }
-        .img-nav { position: absolute; top: 50%; width: 100%; display: flex; justify-content: space-between; transform: translateY(-50%); pointer-events: none; }
-        .nav-arrow { background: rgba(214, 48, 49, 0.7); color: white; border: none; padding: 10px; cursor: pointer; pointer-events: auto; display: none; }
+        .v-img-container { width: 100%; height: 280px; background: #eee; border-radius: 5px; overflow: hidden; margin-bottom: 15px; position: relative; border: 1px solid #ddd; }
+        #v-img { width: 100%; height: 100%; object-fit: cover; transition: 0.2s; }
+        
+        /* 左右箭头 */
+        .img-nav { position: absolute; top: 0; bottom: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
+        .nav-arrow { 
+            background: rgba(0, 0, 0, 0.3); color: white; border: none; padding: 15px 10px; 
+            cursor: pointer; pointer-events: auto; font-size: 20px; transition: 0.3s;
+        }
+        .nav-arrow:hover { background: var(--red); }
+        
+        /* 图片数量角标 */
+        .img-counter { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; }
 
         .stat-bar { background: #e0e0e0; height: 10px; border-radius: 5px; margin: 4px 0 12px 0; overflow: hidden; }
         .stat-fill { background: linear-gradient(90deg, var(--yellow), var(--red)); height: 100%; transition: 0.3s; }
 
         .back-btn { background: var(--dark); color: white; border: none; padding: 10px 20px; border-radius: 10px; margin-bottom: 15px; cursor: pointer; }
         .save-btn { background: var(--green); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-size: 18px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+        
+        /* 清空按钮 */
+        .clear-btn { font-size: 10px; color: #999; cursor: pointer; text-decoration: underline; margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -66,8 +78,8 @@
             <div class="input-row">
                 <div class="check-box" id="check-img"></div>
                 <div class="input-body">
-                    <label>上传 OC 立绘 (照片) - 可多选</label>
-                    <input type="file" id="imgInput" accept="image/*" multiple onchange="previewImages(this)">
+                    <label>上传 OC 立绘 (照片) <span class="clear-btn" onclick="clearImages()">[清空已传]</span></label>
+                    <input type="file" id="imgInput" accept="image/*" multiple onchange="appendImages(this)">
                 </div>
             </div>
             <div class="input-row">
@@ -116,10 +128,11 @@
             <h3 style="text-align:center; border-bottom:2px solid var(--red); margin:0 0 15px 0; padding-bottom:5px;">PIZZA-OC</h3>
             <div class="v-img-container">
                 <img src="" id="v-img" alt="等待上传">
-                <div class="img-nav" id="imgNav">
-                    <button class="nav-arrow" onclick="changeImg(-1)" style="display:block;">◀</button>
-                    <button class="nav-arrow" onclick="changeImg(1)" style="display:block;">▶</button>
+                <div class="img-nav" id="imgNav" style="display:none;">
+                    <button class="nav-arrow" onclick="changeImg(-1)">◀</button>
+                    <button class="nav-arrow" onclick="changeImg(1)">▶</button>
                 </div>
+                <div class="img-counter" id="imgCount" style="display:none;">0 / 0</div>
             </div>
             <p><b>品名:</b> <span id="v-name">---</span></p>
             <p><b>饼底:</b> <span id="v-type">---</span> | <b>生日:</b> <span id="v-date">---</span></p>
@@ -157,25 +170,53 @@
             window.scrollTo(0,0);
         }
 
-        function previewImages(input) {
+        // 修改后的图片上传逻辑：追加而非覆盖
+        function appendImages(input) {
             if (input.files) {
-                imgList = [];
-                Array.from(input.files).forEach(file => {
+                const filesArray = Array.from(input.files);
+                let loadedCount = 0;
+
+                filesArray.forEach(file => {
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         imgList.push(e.target.result);
-                        if(imgList.length === 1) document.getElementById('v-img').src = imgList[0];
+                        loadedCount++;
+                        // 当所有选中的图加载完，刷新显示
+                        if(loadedCount === filesArray.length) {
+                            refreshImgDisplay();
+                        }
                     };
                     reader.readAsDataURL(file);
                 });
                 document.getElementById('check-img').classList.add('checked');
+                input.value = ""; // 重置input，允许重复选同一张图
+            }
+        }
+
+        function clearImages() {
+            imgList = [];
+            currentImgIndex = 0;
+            document.getElementById('v-img').src = "";
+            document.getElementById('imgNav').style.display = "none";
+            document.getElementById('imgCount').style.display = "none";
+            document.getElementById('check-img').classList.remove('checked');
+        }
+
+        function refreshImgDisplay() {
+            if (imgList.length > 0) {
+                document.getElementById('v-img').src = imgList[currentImgIndex];
+                document.getElementById('imgCount').innerText = `${currentImgIndex + 1} / ${imgList.length}`;
+                document.getElementById('imgCount').style.display = "block";
+                
+                // 只有图超过1张才显示切换箭头
+                document.getElementById('imgNav').style.display = imgList.length > 1 ? "flex" : "none";
             }
         }
 
         function changeImg(step) {
-            if(imgList.length === 0) return;
+            if(imgList.length <= 1) return;
             currentImgIndex = (currentImgIndex + step + imgList.length) % imgList.length;
-            document.getElementById('v-img').src = imgList[currentImgIndex];
+            refreshImgDisplay();
         }
 
         function update() {
@@ -205,11 +246,17 @@
         }
 
         function saveAsImage() {
+            // 截图前暂时隐藏箭头，避免保存在图片里（如果需要）
+            document.getElementById('imgNav').style.display = "none";
+            
             html2canvas(document.getElementById('receipt')).then(canvas => {
                 const link = document.createElement('a');
                 link.download = 'pizza-oc.png';
                 link.href = canvas.toDataURL();
                 link.click();
+                
+                // 截图完恢复显示
+                if(imgList.length > 1) document.getElementById('imgNav').style.display = "flex";
             });
         }
     </script>
