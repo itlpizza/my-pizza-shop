@@ -94,7 +94,7 @@
         <button class="back-btn" onclick="handleBack()">← 返回</button>
         
         <div class="music-box">
-            <label style="font-size: 13px; font-weight: bold;">🎵 披萨店背景音乐 (进入即播)：</label>
+            <label style="font-size: 13px; font-weight: bold;">🎵 披萨店背景音乐：</label>
             <div class="music-btns">
                 <button id="m1" onclick="playMusic(1)">🎬 Family Madrigal</button>
                 <button id="m2" onclick="playMusic(2)">✨ Waiting On A Miracle</button>
@@ -250,7 +250,6 @@
                 audio.pause();
             } else {
                 audio.src = tracks[idx];
-                // 增加报错处理，防止文件未下载导致的问题
                 audio.play().catch(e => {
                     console.error("播放失败，请确保本地有音频文件并重命名为 1.mp3 - 5.mp3");
                 });
@@ -287,7 +286,6 @@
             window.scrollTo(0,0);
             if(num === 2) {
                 if(!myRadarChart) initRadar();
-                // 默认播放第一首
                 const audio = document.getElementById('bgMusic');
                 if(!audio.src || audio.paused) playMusic(1); 
             }
