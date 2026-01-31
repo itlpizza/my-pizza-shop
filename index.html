@@ -94,11 +94,13 @@
         <button class="back-btn" onclick="handleBack()">← 返回</button>
         
         <div class="music-box">
-            <label style="font-size: 13px; font-weight: bold;">🎵 治愈点唱机 (进入即播)：</label>
+            <label style="font-size: 13px; font-weight: bold;">🎵 披萨店背景音乐 (进入即播)：</label>
             <div class="music-btns">
-                <button id="m1" onclick="playMusic(1)">🥣 森林浓汤</button>
-                <button id="m2" onclick="playMusic(2)">☁️ 云朵棉花糖</button>
-                <button id="m3" onclick="playMusic(3)">🪴 咸风里的草莓</button>
+                <button id="m1" onclick="playMusic(1)">🎬 Family Madrigal</button>
+                <button id="m2" onclick="playMusic(2)">✨ Waiting On A Miracle</button>
+                <button id="m3" onclick="playMusic(3)">💪 Surface Pressure</button>
+                <button id="m4" onclick="playMusic(4)">🤫 Talk About Bruno</button>
+                <button id="m5" onclick="playMusic(5)">🌸 What Else Can I Do</button>
                 <button onclick="playMusic(0)">🔇 静音</button>
             </div>
             <audio id="bgMusic" loop></audio>
@@ -231,12 +233,14 @@
         let myRadarChart = null;
         const pizzaNames = ["碳烤熔岩黑松露", "至尊芝心小恶魔", "法式香草奶油猫", "榴莲爆炸狂想曲", "薄脆萨拉米之吻", "深海墨鱼芝士堡", "薄荷青提森林果", "迷迭香烤小羊排"];
         
-        // 音乐配置
+        // 音乐配置：替换为 Encanto 五首歌
         const tracks = [
             "",
-            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // 森林
-            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", // 云朵
-            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"  // 咸风
+            "https://music.youtube.com/watch?v=iLP_CMVLfVc", // The Family Madrigal
+            "https://music.youtube.com/watch?v=IbY7-W3COw4", // Waiting On A Miracle
+            "https://music.youtube.com/watch?v=3imnxCmR7bw", // Surface Pressure
+            "https://music.youtube.com/watch?v=dxZ5oG0Qh58", // We Don't Talk About Bruno
+            "https://music.youtube.com/watch?v=l8OuOaPpSRI"  // What Else Can I Do?
         ];
 
         function playMusic(idx) {
@@ -280,9 +284,9 @@
             window.scrollTo(0,0);
             if(num === 2) {
                 if(!myRadarChart) initRadar();
-                // 默认播放云朵棉花糖 (索引2)
+                // 默认播放列表中的第一首 (索引1: Family Madrigal)
                 const audio = document.getElementById('bgMusic');
-                if(!audio.src || audio.paused) playMusic(2); 
+                if(!audio.src || audio.paused) playMusic(1); 
             }
         }
 
