@@ -233,14 +233,14 @@
         let myRadarChart = null;
         const pizzaNames = ["碳烤熔岩黑松露", "至尊芝心小恶魔", "法式香草奶油猫", "榴莲爆炸狂想曲", "薄脆萨拉米之吻", "深海墨鱼芝士堡", "薄荷青提森林果", "迷迭香烤小羊排"];
         
-        // 音乐配置：替换为 Encanto 五首歌
+        // 音乐配置：链接已修改为指向同文件夹下的本地 mp3 文件
         const tracks = [
             "",
-            "https://music.youtube.com/watch?v=iLP_CMVLfVc", // The Family Madrigal
-            "https://music.youtube.com/watch?v=IbY7-W3COw4", // Waiting On A Miracle
-            "https://music.youtube.com/watch?v=3imnxCmR7bw", // Surface Pressure
-            "https://music.youtube.com/watch?v=dxZ5oG0Qh58", // We Don't Talk About Bruno
-            "https://music.youtube.com/watch?v=l8OuOaPpSRI"  // What Else Can I Do?
+            "1.mp3", // 原 The Family Madrigal
+            "2.mp3", // 原 Waiting On A Miracle
+            "3.mp3", // 原 Surface Pressure (对应 aa8508b7...)
+            "4.mp3", // 原 We Don't Talk About Bruno (对应 8eab9941...)
+            "5.mp3"  // 原 What Else Can I Do? (对应 Waiting On A Miracle 的另一个版本)
         ];
 
         function playMusic(idx) {
@@ -250,7 +250,10 @@
                 audio.pause();
             } else {
                 audio.src = tracks[idx];
-                audio.play();
+                // 增加报错处理，防止文件未下载导致的问题
+                audio.play().catch(e => {
+                    console.error("播放失败，请确保本地有音频文件并重命名为 1.mp3 - 5.mp3");
+                });
                 document.getElementById('m' + idx).classList.add('active');
             }
         }
@@ -284,7 +287,7 @@
             window.scrollTo(0,0);
             if(num === 2) {
                 if(!myRadarChart) initRadar();
-                // 默认播放列表中的第一首 (索引1: Family Madrigal)
+                // 默认播放第一首
                 const audio = document.getElementById('bgMusic');
                 if(!audio.src || audio.paused) playMusic(1); 
             }
@@ -371,14 +374,12 @@
                 else check.classList.remove('checked');
             });
 
-            // 更新 4 个原有进度条
             for(let i=1; i<=4; i++) {
                 const s = document.getElementById('stat' + i).value;
                 document.getElementById('v-bar' + i).style.width = s + "%";
                 document.getElementById('v-val' + i).innerText = s + "%";
             }
 
-            // 更新 6 个雷达数值
             if(myRadarChart) {
                 const r_vals = [];
                 for(let j=1; j<=6; j++) {
@@ -406,7 +407,6 @@
                 stat2: document.getElementById('stat2').value,
                 stat3: document.getElementById('stat3').value,
                 stat4: document.getElementById('stat4').value,
-                // 保存雷达数据
                 r_stats: [1,2,3,4,5,6].map(n => document.getElementById('r_stat'+n).value),
                 paperColor: document.getElementById('paperColor').value,
                 images: imgList
@@ -464,7 +464,6 @@
             document.getElementById('stat2').value = data.stat2;
             document.getElementById('stat3').value = data.stat3;
             document.getElementById('stat4').value = data.stat4;
-            // 加载雷达数据
             if(data.r_stats) {
                 data.r_stats.forEach((v, i) => {
                     document.getElementById('r_stat' + (i+1)).value = v;
