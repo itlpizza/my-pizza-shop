@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PIZZA SHOP | OC角色工坊 (治愈音享版)</title>
+    <title>PIZZA SHOP | OC角色工坊 (治愈雷达版)</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -47,24 +47,31 @@
 
         .back-btn { background: var(--dark); color: white; border: none; padding: 10px 20px; border-radius: 10px; margin-bottom: 15px; cursor: pointer; }
         .save-btn { background: var(--green); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-size: 18px; font-weight: bold; margin-top: 20px; cursor: pointer; box-shadow: 0 5px 0px #1e8449; }
+        .save-btn:active { transform: translateY(3px); box-shadow: 0 2px 0px #1e8449; }
         
+        .clear-btn { font-size: 10px; color: var(--red); cursor: pointer; text-decoration: underline; margin-left: 10px; }
         .color-picker-wrap { display: flex; align-items: center; gap: 10px; padding: 10px 15px; background: #eee; border-radius: 10px; margin-bottom: 15px; }
 
+        /* 点唱机样式 */
+        .music-box { background: white; padding: 12px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 15px; }
+        .music-btns { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+        .music-btns button { flex: 1; min-width: 100px; padding: 8px; font-size: 12px; border: 1px solid #eee; border-radius: 6px; cursor: pointer; background: #f9f9f9; transition: 0.3s; }
+        .music-btns button.active { background: var(--red); color: white; border-color: var(--red); }
+
+        /* 存档库专用样式 */
         .search-bar { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--red); margin-bottom: 20px; box-sizing: border-box; font-size: 14px; }
         .pizza-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 10px 0; }
         .pizza-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #ddd; box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; position: relative; transition: 0.3s; }
-        .delete-btn { position: absolute; top: 5px; right: 5px; background: rgba(214, 48, 49, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-size: 12px; }
+        .pizza-card:hover { transform: translateY(-5px); border-color: var(--red); }
+        .pizza-card .thumb-img { width: 100%; height: 150px; object-fit: cover; background: #f0f0f0; }
+        .pizza-info { padding: 10px; text-align: center; font-size: 14px; font-weight: bold; color: var(--dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .delete-btn { position: absolute; top: 5px; right: 5px; background: rgba(214, 48, 49, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-size: 12px; z-index: 5; }
 
-        /* 点唱机样式 */
-        .jukebox-wrap { background: #fff; padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ddd; }
-        .jukebox-btns { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
-        .jukebox-btns button { flex: 1; min-width: 80px; font-size: 11px; padding: 8px; cursor: pointer; border: 1px solid #ddd; background: #f9f9f9; border-radius: 5px; transition: 0.3s; }
-        .jukebox-btns button.active { background: var(--red); color: white; border-color: var(--red); }
-        .record-icon { display: inline-block; width: 20px; height: 20px; vertical-align: middle; margin-right: 5px; animation: spin 3s linear infinite; }
-        @keyframes spin { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
-
-        #toast { visibility: hidden; min-width: 250px; background-color: var(--dark); color: #fff; text-align: center; border-radius: 10px; padding: 16px; position: fixed; z-index: 100; left: 50%; bottom: 30px; transform: translateX(-50%); border: 2px solid var(--yellow); }
+        /* 成功提示框 */
+        #toast { visibility: hidden; min-width: 250px; background-color: var(--dark); color: #fff; text-align: center; border-radius: 10px; padding: 16px; position: fixed; z-index: 100; left: 50%; bottom: 30px; transform: translateX(-50%); font-weight: bold; border: 2px solid var(--yellow); }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
 </head>
 <body>
@@ -78,34 +85,36 @@
             <p style="letter-spacing: 4px; color: #666; font-size: 12px;">角色赏味工坊</p>
             <div class="menu-item" onclick="createNewPizza()">✨ 制作专属披萨 (OC)</div>
             <div class="menu-item" onclick="showCollection()">📦 我的披萨 (冷藏柜)</div>
+            <div class="menu-item" onclick="alert('广场正在装修中...')">🏘️ 菜品评论 (OC广场)</div>
+            <div class="menu-item" onclick="alert('欢迎光临！')">🛵 关于我们</div>
         </div>
     </div>
 
     <div id="page2" class="page">
         <button class="back-btn" onclick="handleBack()">← 返回</button>
         
-        <div class="jukebox-wrap">
-            <label style="font-size: 13px; font-weight: bold;"><span class="record-icon" id="recordIcon">💿</span>今日推荐：</label>
-            <div class="jukebox-btns">
-                <button id="mbtn1" onclick="switchMusic(1)">🥣 森林浓汤</button>
-                <button id="mbtn2" onclick="switchMusic(2)">☁️ 云朵棉花糖</button>
-                <button id="mbtn3" onclick="switchMusic(3)">🪴 咸风里的草莓</button>
-                <button id="mbtn0" onclick="switchMusic(0)">🔇 别吵我</button>
+        <div class="music-box">
+            <label style="font-size: 13px; font-weight: bold;">🎵 治愈点唱机 (进入即播)：</label>
+            <div class="music-btns">
+                <button id="m1" onclick="playMusic(1)">🥣 森林浓汤</button>
+                <button id="m2" onclick="playMusic(2)">☁️ 云朵棉花糖</button>
+                <button id="m3" onclick="playMusic(3)">🪴 咸风里的草莓</button>
+                <button onclick="playMusic(0)">🔇 静音</button>
             </div>
-            <audio id="bgm" loop></audio>
+            <audio id="bgMusic" loop></audio>
         </div>
 
         <div class="color-picker-wrap">
-            <label style="font-size: 13px; font-weight: bold;">纸张底色：</label>
-            <input type="color" id="paperColor" value="#fffcf2" oninput="changePaperColor(this.value)">
+            <label style="font-size: 13px; font-weight: bold;">小票纸张颜色：</label>
+            <input type="color" id="paperColor" value="#fffcf2" oninput="changePaperColor(this.value)" style="width:50px; height:30px; border:none; padding:0; cursor:pointer;">
         </div>
 
         <div class="section-card">
-            <div class="section-header">基础档案</div>
+            <div class="section-header">基础档案（身份信息）</div>
             <div class="input-row">
                 <div class="check-box" id="check-img"></div>
                 <div class="input-body">
-                    <label>上传 OC 立绘 <span style="color:red; cursor:pointer;" onclick="clearImages()">[清空]</span></label>
+                    <label>上传 OC 立绘 (照片) <span class="clear-btn" onclick="clearImages()">[清空立绘]</span></label>
                     <input type="file" id="imgInput" accept="image/*" multiple onchange="appendImages(this)">
                     <div id="local-preview-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;"></div>
                 </div>
@@ -115,51 +124,63 @@
                 <div class="input-body">
                     <label>产品名称</label>
                     <div style="display: flex; gap: 8px;">
-                        <input type="text" id="name" placeholder="名字" oninput="update()">
+                        <input type="text" id="name" placeholder="请输入角色名称" oninput="update()">
                         <button class="random-btn" onclick="randomName()">🎲 随机</button>
                     </div>
                 </div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-type"></div>
-                <div class="input-body"><label>饼底类型 (种族)</label><input type="text" id="type" oninput="update()"></div>
+                <div class="input-body"><label>饼底类型（种族）</label><input type="text" id="type" placeholder="如：兽人、人类..." oninput="update()"></div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-tags"></div>
-                <div class="input-body"><label>风味调料 (性格)</label><input type="text" id="tags" oninput="update()"></div>
+                <div class="input-body"><label>风味调料（性格）</label><input type="text" id="tags" placeholder="输入性格关键词" oninput="update()"></div>
+            </div>
+            <div class="input-row">
+                <div class="check-box" id="check-date"></div>
+                <div class="input-body"><label>出炉日期（生日）</label><input type="text" id="date" placeholder="如：1月1日" oninput="update()"></div>
             </div>
         </div>
 
         <div class="section-card">
-            <div class="section-header">核心数值 (对应六边形)</div>
-            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>智商</label><input type="range" id="stat1" value="50" oninput="update()"></div></div>
-            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>耐力</label><input type="range" id="stat2" value="50" oninput="update()"></div></div>
-            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>速度</label><input type="range" id="stat3" value="50" oninput="update()"></div></div>
-            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>力量</label><input type="range" id="stat4" value="50" oninput="update()"></div></div>
-            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>体力</label><input type="range" id="stat5" value="50" oninput="update()"></div></div>
-            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>运气</label><input type="range" id="stat6" value="50" oninput="update()"></div></div>
+            <div class="section-header">核心数值（属性条）</div>
+            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>美味度</label><input type="range" id="stat1" value="50" oninput="update()"></div></div>
+            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>拉丝长度</label><input type="range" id="stat2" value="50" oninput="update()"></div></div>
+            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>脆度</label><input type="range" id="stat3" value="50" oninput="update()"></div></div>
+            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>卡路里</label><input type="range" id="stat4" value="50" oninput="update()"></div></div>
         </div>
 
         <div class="section-card">
-            <div class="section-header">深度设定</div>
+            <div class="section-header">雷达战力（六边形）</div>
+            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>智商</label><input type="range" id="r_stat1" value="60" oninput="update()"></div></div>
+            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>耐力</label><input type="range" id="r_stat2" value="60" oninput="update()"></div></div>
+            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>速度</label><input type="range" id="r_stat3" value="60" oninput="update()"></div></div>
+            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>力量</label><input type="range" id="r_stat4" value="60" oninput="update()"></div></div>
+            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>体力</label><input type="range" id="r_stat5" value="60" oninput="update()"></div></div>
+            <div class="input-row"><div class="check-box checked"></div><div class="input-body"><label>运气</label><input type="range" id="r_stat6" value="60" oninput="update()"></div></div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-header">深度设定（小票详情）</div>
             <div class="input-row">
                 <div class="check-box" id="check-bio"></div>
-                <div class="input-body"><label>配料说明 (生平)</label><textarea id="bio" rows="3" oninput="update()"></textarea></div>
+                <div class="input-body"><label>配料说明（生平）</label><textarea id="bio" rows="3" placeholder="角色的背景故事..." oninput="update()"></textarea></div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-wish"></div>
-                <div class="input-body"><label>赏味期限 (愿望)</label><input type="text" id="wish" oninput="update()"></div>
+                <div class="input-body"><label>赏味期限（愿望）</label><input type="text" id="wish" placeholder="愿望/格言" oninput="update()"></div>
             </div>
             <div class="input-row">
                 <div class="check-box" id="check-allergy"></div>
-                <div class="input-body"><label>过敏原 (怕点)</label><input type="text" id="allergy" oninput="update()"></div>
+                <div class="input-body"><label>过敏原（怕点）</label><input type="text" id="allergy" placeholder="角色的弱点" oninput="update()"></div>
             </div>
         </div>
 
         <div id="receipt" class="receipt-preview">
-            <h3 style="text-align:center; border-bottom:2px solid var(--red); margin:0 0 15px 0;">PIZZA-OC RECEIPT</h3>
+            <h3 style="text-align:center; border-bottom:2px solid var(--red); margin:0 0 15px 0; padding-bottom:5px;">PIZZA-OC</h3>
             <div class="v-img-container">
-                <img src="" id="v-img">
+                <img src="" id="v-img" alt="立绘预览">
                 <div class="img-nav" id="imgNav" style="display:none;">
                     <button class="nav-arrow" onclick="changeImg(-1)">◀</button>
                     <button class="nav-arrow" onclick="changeImg(1)">▶</button>
@@ -167,24 +188,30 @@
                 <div class="img-counter" id="imgCount" style="display:none;">0 / 0</div>
             </div>
             <p><b>品名:</b> <span id="v-name">---</span></p>
-            <p><b>饼底:</b> <span id="v-type">---</span> | <b>调味:</b> <span id="v-tags">---</span></p>
+            <p><b>饼底:</b> <span id="v-type">---</span> | <b>生日:</b> <span id="v-date">---</span></p>
+            <p><b>调味:</b> <span id="v-tags">---</span></p>
 
-            <div style="background:rgba(255,255,255,0.4); border-radius:10px; padding:10px; margin: 10px 0;">
-                <canvas id="radarChart" height="220"></canvas>
+            <div style="width: 100%; height: 220px; margin: 10px 0;">
+                <canvas id="radarCanvas"></canvas>
             </div>
 
-            <div style="font-size:11px; display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
-                <div>🧠 智商: <span id="v-val1">50%</span></div><div>🛡️ 耐力: <span id="v-val2">50%</span></div>
-                <div>⚡ 速度: <span id="v-val3">50%</span></div><div>⚔️ 力量: <span id="v-val4">50%</span></div>
-                <div>🔋 体力: <span id="v-val5">50%</span></div><div>🍀 运气: <span id="v-val6">50%</span></div>
+            <div style="margin-top:10px;">
+                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>🧀 美味度</span><span id="v-val1">50%</span></div>
+                <div class="stat-bar"><div id="v-bar1" class="stat-fill" style="width:50%"></div></div>
+                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>🔥 拉丝长</span><span id="v-val2">50%</span></div>
+                <div class="stat-bar"><div id="v-bar2" class="stat-fill" style="width:50%"></div></div>
+                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>🥨 脆度</span><span id="v-val3">50%</span></div>
+                <div class="stat-bar"><div id="v-bar3" class="stat-fill" style="width:50%"></div></div>
+                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>🍔 卡路里</span><span id="v-val4">50%</span></div>
+                <div class="stat-bar"><div id="v-bar4" class="stat-fill" style="width:50%"></div></div>
             </div>
-
-            <div style="background:rgba(0,0,0,0.05); padding:10px; font-size:12px; border-radius:5px; margin-top:10px;">
+            
+            <div style="background:rgba(0,0,0,0.05); padding:10px; font-size:12px; border-radius:5px; margin-top:10px; line-height:1.6;">
                 <b>[配料生平]</b> <span id="v-bio">---</span><br>
                 <b>[赏味期限]</b> <span id="v-wish">---</span><br>
                 <b>[避雷提示]</b> <span id="v-allergy">---</span>
             </div>
-            <p style="text-align:center; font-size:10px; color:#999; margin-top:10px;">*** 新鲜出炉，请尽快爱护 ***</p>
+            <p style="text-align:center; font-size:10px; color:#999; margin-top:15px;">*** 新鲜出炉，请尽快爱护 ***</p>
         </div>
         
         <button class="save-btn" onclick="fullArchiveSave()">📦 打包出炉 (存为数据存档并导出图片)</button>
@@ -193,60 +220,46 @@
     <div id="page3" class="page">
         <button class="back-btn" onclick="goPage(1)">← 返回大堂</button>
         <h2 style="color:var(--red); text-align:center;">🍕 我的冷藏柜</h2>
+        <input type="text" class="search-bar" id="searchInput" placeholder="🔍 输入名字查找披萨..." oninput="filterPizzas()">
         <div id="pizza-list" class="pizza-grid"></div>
     </div>
 
     <script>
         let imgList = [];
         let currentImgIndex = 0;
-        let editingId = null;
-        let myChart = null;
-        const pizzaNames = ["碳烤熔岩黑松露", "至尊芝心小恶魔", "法式香草奶油猫", "榴莲爆炸狂想曲"];
+        let editingId = null; 
+        let myRadarChart = null;
+        const pizzaNames = ["碳烤熔岩黑松露", "至尊芝心小恶魔", "法式香草奶油猫", "榴莲爆炸狂想曲", "薄脆萨拉米之吻", "深海墨鱼芝士堡", "薄荷青提森林果", "迷迭香烤小羊排"];
         
-        // 治愈系背景音乐
-        const audio = document.getElementById('bgm');
-        const tracks = ["", 
-            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // 示例1
-            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3", // 示例2
-            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"  // 示例3
+        // 音乐配置
+        const tracks = [
+            "",
+            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // 森林
+            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", // 云朵
+            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"  // 咸风
         ];
 
-        function goPage(num) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('page' + num).classList.add('active');
-            if(num === 2) {
-                if(!myChart) initRadar();
-                // 默认播放第一首
-                if(audio.paused && !audio.src) switchMusic(1);
-            }
-        }
-
-        function handleBack() { editingId ? showCollection() : goPage(1); }
-
-        // 音乐控制：默认播放某一首
-        function switchMusic(idx) {
-            document.querySelectorAll('.jukebox-btns button').forEach(b => b.classList.remove('active'));
-            document.getElementById('mbtn' + idx).classList.add('active');
-            const icon = document.getElementById('recordIcon');
+        function playMusic(idx) {
+            const audio = document.getElementById('bgMusic');
+            document.querySelectorAll('.music-btns button').forEach(b => b.classList.remove('active'));
             if(idx === 0) {
                 audio.pause();
-                icon.style.animationPlayState = "paused";
             } else {
                 audio.src = tracks[idx];
                 audio.play();
-                icon.style.animationPlayState = "running";
+                document.getElementById('m' + idx).classList.add('active');
             }
         }
 
-        // 初始化六边形雷达图
+        // 初始化雷达图
         function initRadar() {
-            const ctx = document.getElementById('radarChart').getContext('2d');
-            myChart = new Chart(ctx, {
+            const ctx = document.getElementById('radarCanvas').getContext('2d');
+            myRadarChart = new Chart(ctx, {
                 type: 'radar',
                 data: {
                     labels: ['智商', '耐力', '速度', '力量', '体力', '运气'],
                     datasets: [{
-                        data: [50, 50, 50, 50, 50, 50],
+                        data: [60, 60, 60, 60, 60, 60],
                         backgroundColor: 'rgba(214, 48, 49, 0.2)',
                         borderColor: '#d63031',
                         borderWidth: 2,
@@ -254,42 +267,46 @@
                     }]
                 },
                 options: {
-                    scales: { r: { min: 0, max: 100, ticks: { display: false }, grid: { color: 'rgba(0,0,0,0.1)' } } },
+                    scales: { r: { min: 0, max: 100, ticks: { display: false }, grid: { color: 'rgba(0,0,0,0.1)' }, pointLabels: { font: { size: 12, weight: 'bold' } } } },
                     plugins: { legend: { display: false } },
                     maintainAspectRatio: false
                 }
             });
         }
 
-        function update() {
-            const fields = [
-                { id: 'name', vId: 'v-name', checkId: 'check-name' },
-                { id: 'type', vId: 'v-type', checkId: 'check-type' },
-                { id: 'tags', vId: 'v-tags', checkId: 'check-tags' },
-                { id: 'bio', vId: 'v-bio', checkId: 'check-bio' },
-                { id: 'wish', vId: 'v-wish', checkId: 'check-wish' },
-                { id: 'allergy', vId: 'v-allergy', checkId: 'check-allergy' }
-            ];
-            fields.forEach(f => {
-                const val = document.getElementById(f.id).value;
-                document.getElementById(f.vId).innerText = val || "---";
-                const ck = document.getElementById(f.checkId);
-                if(ck) val ? ck.classList.add('checked') : ck.classList.remove('checked');
-            });
-
-            const vals = [];
-            for(let i=1; i<=6; i++) {
-                const s = document.getElementById('stat' + i).value;
-                document.getElementById('v-val' + i).innerText = s + "%";
-                vals.push(s);
-            }
-            if(myChart) {
-                myChart.data.datasets[0].data = vals;
-                myChart.update('none');
+        function goPage(num) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page' + num).classList.add('active');
+            window.scrollTo(0,0);
+            if(num === 2) {
+                if(!myRadarChart) initRadar();
+                // 默认播放云朵棉花糖 (索引2)
+                const audio = document.getElementById('bgMusic');
+                if(!audio.src || audio.paused) playMusic(2); 
             }
         }
 
-        // --- 保持原有图像逻辑 ---
+        function handleBack() {
+            if (editingId) showCollection();
+            else goPage(1);
+        }
+
+        function createNewPizza() {
+            editingId = null;
+            document.querySelectorAll('#page2 input[type="text"], #page2 textarea').forEach(i => i.value = "");
+            document.querySelectorAll('input[type="range"]').forEach(r => r.value = 50);
+            clearImages();
+            update();
+            goPage(2);
+        }
+
+        function changePaperColor(val) { document.getElementById('receipt').style.backgroundColor = val; }
+        
+        function randomName() {
+            document.getElementById('name').value = pizzaNames[Math.floor(Math.random() * pizzaNames.length)];
+            update();
+        }
+
         function appendImages(input) {
             if (input.files) {
                 Array.from(input.files).forEach(file => {
@@ -304,15 +321,19 @@
                     reader.readAsDataURL(file);
                 });
                 document.getElementById('check-img').classList.add('checked');
+                input.value = ""; 
             }
         }
+
         function clearImages() {
             imgList = []; currentImgIndex = 0;
             document.getElementById('v-img').src = "";
             document.getElementById('imgNav').style.display = "none";
-            document.getElementById('local-preview-container').innerHTML = "";
+            document.getElementById('imgCount').style.display = "none";
             document.getElementById('check-img').classList.remove('checked');
+            document.getElementById('local-preview-container').innerHTML = "";
         }
+
         function refreshImgDisplay() {
             if (imgList.length > 0) {
                 document.getElementById('v-img').src = imgList[currentImgIndex];
@@ -321,51 +342,175 @@
                 document.getElementById('imgNav').style.display = imgList.length > 1 ? "flex" : "none";
             }
         }
+
         function changeImg(step) {
+            if(imgList.length <= 1) return;
             currentImgIndex = (currentImgIndex + step + imgList.length) % imgList.length;
             refreshImgDisplay();
         }
-        function changePaperColor(val) { document.getElementById('receipt').style.backgroundColor = val; }
-        function randomName() { document.getElementById('name').value = pizzaNames[Math.floor(Math.random()*pizzaNames.length)]; update(); }
+
+        function update() {
+            const fields = [
+                { id: 'name', vId: 'v-name', checkId: 'check-name' },
+                { id: 'type', vId: 'v-type', checkId: 'check-type' },
+                { id: 'tags', vId: 'v-tags', checkId: 'check-tags' },
+                { id: 'date', vId: 'v-date', checkId: 'check-date' },
+                { id: 'bio', vId: 'v-bio', checkId: 'check-bio' },
+                { id: 'wish', vId: 'v-wish', checkId: 'check-wish' },
+                { id: 'allergy', vId: 'v-allergy', checkId: 'check-allergy' }
+            ];
+            fields.forEach(field => {
+                const val = document.getElementById(field.id).value;
+                document.getElementById(field.vId).innerText = val || "---";
+                const check = document.getElementById(field.checkId);
+                if (val && val.trim().length > 0) check.classList.add('checked');
+                else check.classList.remove('checked');
+            });
+
+            // 更新 4 个原有进度条
+            for(let i=1; i<=4; i++) {
+                const s = document.getElementById('stat' + i).value;
+                document.getElementById('v-bar' + i).style.width = s + "%";
+                document.getElementById('v-val' + i).innerText = s + "%";
+            }
+
+            // 更新 6 个雷达数值
+            if(myRadarChart) {
+                const r_vals = [];
+                for(let j=1; j<=6; j++) {
+                    r_vals.push(document.getElementById('r_stat' + j).value);
+                }
+                myRadarChart.data.datasets[0].data = r_vals;
+                myRadarChart.update('none');
+            }
+        }
 
         function fullArchiveSave() {
-            const ocName = document.getElementById('name').value.trim() || "未命名";
+            const ocName = document.getElementById('name').value.trim() || "未命名披萨";
+            const isNew = (editingId === null);
+            
+            const pizzaData = {
+                id: editingId || Date.now(),
+                name: ocName,
+                type: document.getElementById('type').value,
+                tags: document.getElementById('tags').value,
+                date: document.getElementById('date').value,
+                bio: document.getElementById('bio').value,
+                wish: document.getElementById('wish').value,
+                allergy: document.getElementById('allergy').value,
+                stat1: document.getElementById('stat1').value,
+                stat2: document.getElementById('stat2').value,
+                stat3: document.getElementById('stat3').value,
+                stat4: document.getElementById('stat4').value,
+                // 保存雷达数据
+                r_stats: [1,2,3,4,5,6].map(n => document.getElementById('r_stat'+n).value),
+                paperColor: document.getElementById('paperColor').value,
+                images: imgList
+            };
+
             const nav = document.getElementById('imgNav');
-            nav.style.display = "none";
+            nav.style.display = "none"; 
+            
             html2canvas(document.getElementById('receipt')).then(canvas => {
                 const imgShot = canvas.toDataURL('image/png');
-                let col = JSON.parse(localStorage.getItem('pizzaArchives') || '[]');
-                col.push({ id: Date.now(), name: ocName, previewShot: imgShot });
-                localStorage.setItem('pizzaArchives', JSON.stringify(col));
+                pizzaData.previewShot = imgShot;
+
+                let collection = JSON.parse(localStorage.getItem('pizzaArchives') || '[]');
+                if (!isNew) {
+                    const idx = collection.findIndex(p => p.id === editingId);
+                    if (idx !== -1) collection[idx] = pizzaData;
+                } else {
+                    collection.push(pizzaData);
+                }
+                localStorage.setItem('pizzaArchives', JSON.stringify(collection));
+
                 const link = document.createElement('a');
                 link.download = `PIZZA_${ocName}.png`;
                 link.href = imgShot;
                 link.click();
-                showToast();
-                nav.style.display = imgList.length > 1 ? "flex" : "none";
+
+                if (isNew) {
+                    showToast();
+                    nav.style.display = imgList.length > 1 ? "flex" : "none";
+                } else {
+                    showCollection();
+                }
             });
         }
-        function showToast() { const x = document.getElementById("toast"); x.className = "show"; setTimeout(() => x.className = "", 3000); }
-        function renderList() {
+
+        function showToast() {
+            const x = document.getElementById("toast");
+            x.className = "show";
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }
+
+        function loadArchive(id) {
+            const collection = JSON.parse(localStorage.getItem('pizzaArchives') || '[]');
+            const data = collection.find(p => p.id === id);
+            if (!data) return;
+            editingId = data.id;
+            document.getElementById('name').value = data.name;
+            document.getElementById('type').value = data.type;
+            document.getElementById('tags').value = data.tags;
+            document.getElementById('date').value = data.date;
+            document.getElementById('bio').value = data.bio;
+            document.getElementById('wish').value = data.wish;
+            document.getElementById('allergy').value = data.allergy;
+            document.getElementById('stat1').value = data.stat1;
+            document.getElementById('stat2').value = data.stat2;
+            document.getElementById('stat3').value = data.stat3;
+            document.getElementById('stat4').value = data.stat4;
+            // 加载雷达数据
+            if(data.r_stats) {
+                data.r_stats.forEach((v, i) => {
+                    document.getElementById('r_stat' + (i+1)).value = v;
+                });
+            }
+            document.getElementById('paperColor').value = data.paperColor || "#fffcf2";
+            changePaperColor(data.paperColor || "#fffcf2");
+            imgList = data.images || [];
+            currentImgIndex = 0;
+            document.getElementById('local-preview-container').innerHTML = "";
+            imgList.forEach(src => {
+                const thumb = document.createElement('img');
+                thumb.src = src;
+                document.getElementById('local-preview-container').appendChild(thumb);
+            });
+            goPage(2);
+            update();
+            refreshImgDisplay();
+        }
+
+        function renderList(term = "") {
             const list = document.getElementById('pizza-list');
             list.innerHTML = '';
-            let col = JSON.parse(localStorage.getItem('pizzaArchives') || '[]');
-            col.forEach(item => {
+            let collection = JSON.parse(localStorage.getItem('pizzaArchives') || '[]');
+            const filtered = collection.filter(p => p.name.toLowerCase().includes(term.toLowerCase()));
+            if(filtered.length === 0) {
+                list.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#999; padding:20px;">冷藏柜空空的...</p>';
+                return;
+            }
+            filtered.forEach((item) => {
                 const card = document.createElement('div');
                 card.className = 'pizza-card';
                 card.innerHTML = `<button class="delete-btn" onclick="deletePizza(${item.id}, event)">×</button>
-                                  <img class="thumb-img" src="${item.previewShot}" style="width:100%; height:150px; object-fit:cover;">
-                                  <div style="padding:10px;text-align:center;font-weight:bold;">${item.name}</div>`;
+                    <img class="thumb-img" src="${item.previewShot || ''}">
+                    <div class="pizza-info">${item.name}</div>`;
+                card.onclick = () => loadArchive(item.id);
                 list.appendChild(card);
             });
         }
+
         function showCollection() { renderList(); goPage(3); }
-        function createNewPizza() { editingId = null; goPage(2); }
+        function filterPizzas() { renderList(document.getElementById('searchInput').value); }
         function deletePizza(id, e) {
             e.stopPropagation();
-            let col = JSON.parse(localStorage.getItem('pizzaArchives')).filter(p => p.id !== id);
-            localStorage.setItem('pizzaArchives', JSON.stringify(col));
-            renderList();
+            if(confirm('确定要移除吗？')) {
+                let col = JSON.parse(localStorage.getItem('pizzaArchives'));
+                col = col.filter(p => p.id !== id);
+                localStorage.setItem('pizzaArchives', JSON.stringify(col));
+                renderList(document.getElementById('searchInput').value);
+            }
         }
     </script>
 </body>
